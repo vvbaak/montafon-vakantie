@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#ff6b35">
+<link rel="manifest" href="manifest.json">
+<title>🏔️ Montafon Vakantie 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  (() => {
+    const saved = localStorage.getItem('montafon_theme');
+    const param = new URLSearchParams(window.location.search).get("scoutTheme");
+    const theme = saved || param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --cp-bg: #f0f7ff;
+  --cp-bg-elevated: #ffffff;
+  --cp-surface: #ffffff;
+  --cp-surface-soft: #e8f4fd;
+  --cp-border: #c8e1f5;
+  --cp-border-strong: #7db8e0;
+  --cp-text: #1a2a3a;
+  --cp-text-muted: #5a7a9a;
+  --cp-text-soft: #7a9ab0;
+  --cp-accent: #ff6b35;
+  --cp-accent-hover: #e55a28;
+  --cp-accent-soft: rgba(255, 107, 53, 0.1);
+  --cp-accent-fg: #ffffff;
+  --cp-success: #22c55e;
+  --cp-danger: #ef4444;
+  --cp-warning: #f59e0b;
+  --cp-link: #0078d4;
+  --cp-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --cp-overlay: rgba(255, 255, 255, 0.8);
+  --cp-panel: rgba(255, 255, 255, 0.9);
+  --cp-panel-strong: rgba(255, 255, 255, 0.96);
+  --cp-sheen: rgba(255, 255, 255, 0.55);
+  --cp-highlight: rgba(255, 107, 53, 0.12);
+  --v-green: #22c55e;
+  --v-blue: #38bdf8;
+  --v-purple: #a78bfa;
+  --v-pink: #f472b6;
+  --v-yellow: #fbbf24;
+  --v-sky-start: #87CEEB;
+  --v-sky-end: #e0f2fe;
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --cp-bg: #1a2332;
+  --cp-bg-elevated: #1e2a3a;
+  --cp-surface: #243044;
+  --cp-surface-soft: #2a3650;
+  --cp-border: #3a4a60;
+  --cp-border-strong: #5a7090;
+  --cp-text: #e8f0f8;
+  --cp-text-muted: #8aa0b8;
+  --cp-text-soft: #a0b8d0;
+  --cp-accent: #ff8855;
+  --cp-accent-hover: #ff9966;
+  --cp-accent-soft: rgba(255, 136, 85, 0.15);
+  --cp-accent-fg: #1a1a1a;
+  --cp-success: #4ade80;
+  --cp-danger: #f87171;
+  --cp-warning: #fbbf24;
+  --cp-link: #60b0ff;
+  --cp-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  --cp-overlay: rgba(26, 35, 50, 0.9);
+  --cp-panel: rgba(30, 42, 58, 0.9);
+  --cp-panel-strong: rgba(30, 42, 58, 0.96);
+  --cp-sheen: rgba(255, 255, 255, 0.04);
+  --cp-highlight: rgba(255, 136, 85, 0.15);
+  --v-sky-start: #1a2332;
+  --v-sky-end: #243044;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: 'Nunito', "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--cp-bg);
+  color: var(--cp-text);
+  min-height: 100dvh;
+  padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+  overflow-x: hidden;
+}
+
+.header {
+  background: linear-gradient(135deg, var(--v-sky-start), var(--v-sky-end));
+  padding: calc(env(safe-area-inset-top, 20px) + 8px) 20px 20px;
+  text-align: center;
+  position: relative;
+}
+.header h1 { font-size: 1.6rem; font-weight: 900; color: var(--cp-text); cursor: pointer; user-select: none; display: inline-block; }
+.header .subtitle { font-size: 0.85rem; color: var(--cp-text-muted); margin-top: 4px; font-weight: 600; }
+.header .dates { display: inline-block; background: var(--cp-accent); color: var(--cp-accent-fg); padding: 4px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; margin-top: 8px; }
+
+.theme-toggle {
+  position: absolute; top: calc(env(safe-area-inset-top, 12px) + 10px); right: 16px;
+  width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--cp-border);
+  background: var(--cp-surface); display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem; cursor: pointer; box-shadow: var(--cp-shadow); transition: transform 0.3s; z-index: 10;
+}
+.theme-toggle:active { transform: scale(0.9); }
+
+/* Random result popup */
+.random-result-popup {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  background: var(--cp-surface); border: 2px solid var(--v-purple);
+  border-radius: 20px; padding: 24px; text-align: center;
+  z-index: 10001; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  animation: pop 0.3s ease; max-width: 85vw; width: 320px;
+}
+.random-result-popup .random-emoji { font-size: 3rem; margin-bottom: 10px; }
+.random-result-popup .random-name { font-size: 1.1rem; font-weight: 800; color: var(--cp-text); }
+.random-result-popup .random-desc { font-size: 0.82rem; color: var(--cp-text-muted); margin-top: 6px; line-height: 1.5; }
+.random-result-popup .random-type { font-size: 0.7rem; color: var(--cp-text-soft); margin-top: 8px; text-transform: uppercase; font-weight: 700; }
+.random-result-popup .random-link { display: inline-block; margin-top: 12px; padding: 10px 18px; background: var(--cp-accent); color: var(--cp-accent-fg); border-radius: 10px; text-decoration: none; font-size: 0.82rem; font-weight: 700; }
+.random-result-popup .random-close { position: absolute; top: 10px; right: 14px; background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--cp-text-muted); }
+.random-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 10000; }
+
+.progress-wrap { padding: 12px 20px 4px; background: var(--cp-bg); }
+.progress-label { font-size: 0.8rem; font-weight: 700; color: var(--cp-text-muted); margin-bottom: 6px; display: flex; justify-content: space-between; }
+.progress-bar { height: 10px; background: var(--cp-surface-soft); border-radius: 10px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--v-green), var(--v-blue)); border-radius: 10px; transition: width 0.5s ease; width: 0%; }
+
+.tab-bar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: var(--cp-panel-strong); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--cp-border); display: flex; justify-content: space-around;
+  padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 0px)); z-index: 100;
+}
+.tab-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 4px; border: none; background: none; cursor: pointer; border-radius: 10px; transition: all 0.2s; color: var(--cp-text-muted); font-family: inherit; }
+.tab-btn.active { color: var(--cp-accent); background: var(--cp-accent-soft); }
+.tab-btn .tab-icon { font-size: 1.5rem; line-height: 1; }
+.tab-btn .tab-label { font-size: 0.65rem; font-weight: 700; }
+
+.section { display: none; padding: 16px; }
+.section.active { display: block; }
+.section-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+
+.activity-card { background: var(--cp-surface); border-radius: 16px; margin-bottom: 12px; box-shadow: var(--cp-shadow); border: 1px solid var(--cp-border); overflow: hidden; transition: all 0.3s ease; }
+.activity-card.checked { opacity: 0.65; border-color: var(--v-green); }
+.activity-card.checked .activity-summary { text-decoration: line-through; text-decoration-color: var(--v-green); }
+.activity-header { display: flex; align-items: center; padding: 14px 16px; gap: 12px; cursor: pointer; user-select: none; }
+.activity-checkbox { width: 28px; height: 28px; border-radius: 50%; border: 2.5px solid var(--cp-border-strong); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.3s; font-size: 14px; }
+.activity-card.checked .activity-checkbox { background: var(--v-green); border-color: var(--v-green); color: #fff; }
+.activity-info { flex: 1; min-width: 0; }
+.activity-name { font-size: 0.95rem; font-weight: 700; line-height: 1.3; color: var(--cp-text); }
+.activity-summary { font-size: 0.78rem; color: var(--cp-text-muted); margin-top: 2px; line-height: 1.4; }
+.activity-price-badge { background: var(--cp-accent-soft); color: var(--cp-accent); padding: 3px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 700; white-space: nowrap; flex-shrink: 0; }
+.activity-price-badge.free { background: rgba(34,197,94,0.12); color: var(--v-green); }
+.activity-expand-btn { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: var(--cp-surface-soft); border: none; cursor: pointer; flex-shrink: 0; font-size: 1rem; transition: transform 0.3s; color: var(--cp-text-muted); }
+.activity-card.expanded .activity-expand-btn { transform: rotate(180deg); }
+
+.activity-detail { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; background: var(--cp-surface-soft); }
+.activity-card.expanded .activity-detail { max-height: 900px; }
+.activity-detail-inner { padding: 16px; }
+.detail-description { font-size: 0.85rem; line-height: 1.6; color: var(--cp-text); margin-bottom: 14px; }
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+.detail-item { background: var(--cp-surface); border-radius: 10px; padding: 10px 12px; border: 1px solid var(--cp-border); }
+.detail-item .label { font-size: 0.68rem; color: var(--cp-text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.detail-item .value { font-size: 0.88rem; font-weight: 700; color: var(--cp-text); margin-top: 2px; }
+.detail-item .value.free-val { color: var(--v-green); }
+.btn-maps { display: inline-flex; align-items: center; gap: 6px; background: var(--cp-accent); color: var(--cp-accent-fg); padding: 10px 18px; border-radius: 12px; text-decoration: none; font-size: 0.82rem; font-weight: 700; font-family: inherit; border: none; cursor: pointer; justify-content: center; transition: background 0.2s; }
+.btn-maps:hover { background: var(--cp-accent-hover); }
+
+.carousel-wrap { margin: 14px -16px 14px; overflow-x: auto; scroll-snap-type: x mandatory; display: flex; gap: 10px; padding: 0 16px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.carousel-wrap::-webkit-scrollbar { display: none; }
+.carousel-item { min-width: 260px; height: 170px; border-radius: 12px; scroll-snap-align: start; flex-shrink: 0; overflow: hidden; background: var(--cp-surface-soft); }
+.carousel-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.category-header { font-size: 1rem; font-weight: 800; margin: 20px 0 10px; display: flex; align-items: center; gap: 8px; color: var(--cp-text); }
+.category-header:first-of-type { margin-top: 8px; }
+.resto-card { background: var(--cp-surface); border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; border: 1px solid var(--cp-border); box-shadow: var(--cp-shadow); }
+.resto-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.resto-name { font-size: 0.92rem; font-weight: 700; color: var(--cp-text); }
+.resto-type { font-size: 0.75rem; color: var(--cp-text-muted); margin-top: 2px; }
+.resto-score { background: var(--v-yellow); color: #1a1a1a; padding: 2px 8px; border-radius: 8px; font-size: 0.72rem; font-weight: 800; white-space: nowrap; flex-shrink: 0; }
+.resto-meta { display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap; }
+.resto-meta-item { font-size: 0.75rem; color: var(--cp-text-muted); display: flex; align-items: center; gap: 4px; }
+.resto-desc { font-size: 0.8rem; color: var(--cp-text-soft); margin-top: 8px; line-height: 1.5; }
+
+.erlebnis-card { background: var(--cp-surface); border-radius: 16px; margin-bottom: 12px; box-shadow: var(--cp-shadow); border: 1px solid var(--cp-border); overflow: hidden; cursor: pointer; user-select: none; }
+.erlebnis-header { padding: 14px 16px; display: flex; align-items: center; gap: 12px; }
+.erlebnis-icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; }
+.erlebnis-info { flex: 1; }
+.erlebnis-name { font-size: 0.95rem; font-weight: 700; }
+.erlebnis-location { font-size: 0.78rem; color: var(--cp-text-muted); margin-top: 2px; }
+.erlebnis-badge { padding: 3px 10px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; background: rgba(34,197,94,0.12); color: var(--v-green); white-space: nowrap; }
+.erlebnis-detail { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; background: var(--cp-surface-soft); }
+.erlebnis-card.expanded .erlebnis-detail { max-height: 600px; }
+.erlebnis-detail-inner { padding: 14px 16px; font-size: 0.84rem; line-height: 1.6; color: var(--cp-text); }
+.erlebnis-photo { width: 100%; height: 160px; object-fit: cover; border-radius: 10px; margin-bottom: 10px; }
+.erlebnis-stats { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.erlebnis-stat { background: var(--cp-surface); border: 1px solid var(--cp-border); border-radius: 8px; padding: 6px 10px; font-size: 0.75rem; font-weight: 700; color: var(--cp-text-muted); }
+
+.info-block { background: var(--cp-surface); border-radius: 16px; padding: 18px; margin-bottom: 14px; border: 1px solid var(--cp-border); box-shadow: var(--cp-shadow); }
+.info-block h3 { font-size: 1rem; font-weight: 800; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.price-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.78rem; overflow: hidden; border-radius: 10px; border: 1px solid var(--cp-border); }
+.price-table th { background: var(--cp-accent); color: var(--cp-accent-fg); padding: 10px 8px; font-weight: 700; text-align: left; font-size: 0.72rem; }
+.price-table td { padding: 10px 8px; border-bottom: 1px solid var(--cp-border); background: var(--cp-surface); }
+.price-table tr:last-child td { border-bottom: none; }
+.price-table tr.highlight td { background: var(--cp-accent-soft); font-weight: 700; color: var(--cp-accent); }
+.tip-box { background: linear-gradient(135deg, rgba(34,197,94,0.1), rgba(56,189,248,0.1)); border: 1px solid var(--v-green); border-radius: 12px; padding: 12px 14px; margin-top: 12px; font-size: 0.82rem; line-height: 1.5; color: var(--cp-text); }
+.tip-box strong { color: var(--v-green); }
+.charger-item { padding: 12px 0; border-bottom: 1px solid var(--cp-border); font-size: 0.84rem; line-height: 1.5; }
+.charger-item:last-child { border-bottom: none; }
+.charger-name { font-weight: 700; color: var(--cp-text); }
+.charger-specs { color: var(--cp-text-muted); font-size: 0.78rem; margin-top: 2px; }
+.charger-badge { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 0.68rem; font-weight: 700; margin-top: 4px; }
+.charger-badge.fast { background: rgba(255,107,53,0.12); color: var(--cp-accent); }
+.charger-badge.normal { background: rgba(56,189,248,0.12); color: var(--v-blue); }
+
+/* ─── LEAFLET MAP ─── */
+.map-section { margin-top: 20px; border-radius: 16px; overflow: hidden; border: 1px solid var(--cp-border); box-shadow: var(--cp-shadow); }
+.map-label { background: var(--cp-surface); padding: 10px 14px; font-size: 0.8rem; font-weight: 700; color: var(--cp-text-muted); display: flex; align-items: center; gap: 6px; border-bottom: 1px solid var(--cp-border); }
+.map-wrap { height: 320px; width: 100%; position: relative; z-index: 1; }
+.leaflet-popup-content { font-family: 'Nunito', sans-serif; font-size: 0.82rem; }
+.leaflet-popup-content strong { font-weight: 700; }
+.leaflet-popup-content a { color: var(--cp-accent); font-weight: 700; text-decoration: none; }
+.haus-tooltip { font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 0.72rem; background: #dc2626; color: #fff; border: none; border-radius: 6px; padding: 2px 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+.haus-tooltip::before { border-right-color: #dc2626 !important; }
+
+/* ─── EASTER EGG MODAL ─── */
+.modal-overlay { position: fixed; inset: 0; background: var(--cp-overlay); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 10000; display: none; justify-content: center; align-items: flex-end; }
+.modal-overlay.active { display: flex; }
+#easterModal.active { align-items: flex-start; }
+#easterModal .modal-sheet { border-radius: 0 0 20px 20px; max-height: 92dvh; }
+.modal-sheet { background: var(--cp-surface); border-radius: 20px 20px 0 0; width: 100%; max-height: 88dvh; overflow-y: auto; padding: 20px 18px calc(24px + env(safe-area-inset-bottom, 0px)); animation: slideUp 0.3s ease; }
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.modal-close { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background: var(--cp-surface-soft); border: none; cursor: pointer; font-size: 1.2rem; color: var(--cp-text-muted); float: right; }
+.modal-title { font-size: 1.1rem; font-weight: 800; margin-bottom: 16px; }
+.word-category { margin-bottom: 8px; border: 1px solid var(--cp-border); border-radius: 12px; overflow: hidden; }
+.word-cat-header { padding: 12px 14px; font-weight: 700; font-size: 0.88rem; cursor: pointer; user-select: none; background: var(--cp-surface-soft); display: flex; justify-content: space-between; align-items: center; }
+.word-cat-header .arrow { transition: transform 0.3s; font-size: 0.8rem; }
+.word-category.open .word-cat-header .arrow { transform: rotate(180deg); }
+.word-cat-body { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+.word-category.open .word-cat-body { max-height: 1000px; }
+.word-row { display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 4px; padding: 8px 14px; border-bottom: 1px solid var(--cp-border); font-size: 0.78rem; }
+.word-row:last-child { border-bottom: none; }
+.word-row.hdr { font-weight: 800; color: var(--cp-text-muted); font-size: 0.7rem; text-transform: uppercase; background: var(--cp-surface-soft); }
+.word-row .pron { color: var(--cp-accent); font-style: italic; }
+
+/* ─── BINGO ─── */
+.bingo-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.bingo-cell {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--cp-surface-soft);
+  border: 2px solid var(--cp-border);
+  border-radius: 12px;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s;
+  padding: 4px;
+  position: relative;
+}
+.bingo-cell .bingo-emoji { font-size: 1.6rem; line-height: 1; }
+.bingo-cell .bingo-label { font-size: 0.55rem; font-weight: 700; color: var(--cp-text-muted); margin-top: 3px; text-align: center; line-height: 1.2; }
+.bingo-cell.checked {
+  background: var(--cp-accent-soft);
+  border-color: var(--cp-accent);
+  opacity: 0.6;
+}
+.bingo-cell.checked::after {
+  content: '✕';
+  position: absolute;
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: var(--cp-accent);
+  opacity: 0.7;
+}
+.bingo-reset-btn {
+  width: 100%; padding: 12px; border: 2px solid var(--cp-border);
+  background: var(--cp-surface-soft); color: var(--cp-text-muted);
+  border-radius: 12px; font-family: inherit; font-size: 0.85rem;
+  font-weight: 700; cursor: pointer; transition: all 0.2s;
+}
+.bingo-reset-btn:active { transform: scale(0.97); }
+
+/* ─── BERGEPLUS ─── */
+.bp-filter-btn {
+  padding: 6px 14px; border: 2px solid var(--cp-border); background: var(--cp-surface-soft);
+  color: var(--cp-text-muted); border-radius: 20px; font-family: inherit; font-size: 0.78rem;
+  font-weight: 700; cursor: pointer; transition: all 0.2s;
+}
+.bp-filter-btn.active { background: var(--cp-accent); color: var(--cp-accent-fg); border-color: var(--cp-accent); }
+.bp-day-group { margin-bottom: 20px; }
+.bp-day-header {
+  font-size: 0.92rem; font-weight: 800; color: var(--cp-accent); margin-bottom: 10px;
+  padding: 8px 14px; background: var(--cp-accent-soft); border-radius: 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.bp-card {
+  background: var(--cp-surface); border-radius: 14px; padding: 14px; margin-bottom: 10px;
+  box-shadow: 0 0 2px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14);
+  cursor: pointer; transition: all 0.2s; border-left: 4px solid var(--cp-border);
+}
+.bp-card.kind { border-left-color: var(--v-blue, #0078d4); }
+.bp-card.gezin { border-left-color: var(--v-green, #16a34a); }
+.bp-card.expanded .bp-details { display: block; }
+.bp-card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.bp-card-title { font-size: 0.88rem; font-weight: 800; color: var(--cp-text); }
+.bp-card-meta { font-size: 0.72rem; font-weight: 700; color: var(--cp-text-muted); white-space: nowrap; }
+.bp-card-badge {
+  display: inline-block; font-size: 0.65rem; font-weight: 800; padding: 2px 8px;
+  border-radius: 8px; margin-top: 4px;
+}
+.bp-card-badge.kind { background: rgba(0,120,212,0.12); color: var(--v-blue, #0078d4); }
+.bp-card-badge.gezin { background: rgba(22,163,74,0.12); color: var(--v-green, #16a34a); }
+.bp-card-summary { font-size: 0.8rem; color: var(--cp-text-muted); margin-top: 6px; line-height: 1.5; }
+.bp-details { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--cp-border); }
+.bp-detail-row { display: flex; gap: 8px; margin-bottom: 6px; font-size: 0.8rem; }
+.bp-detail-row .bp-label { font-weight: 700; color: var(--cp-text); min-width: 24px; }
+.bp-detail-row .bp-value { color: var(--cp-text-muted); line-height: 1.5; }
+
+@keyframes pop { 0%{transform:scale(1)} 50%{transform:scale(1.3)} 100%{transform:scale(1)} }
+.pop { animation: pop 0.3s ease; }
+@keyframes shake { 0%,100%{transform:rotate(0)} 25%{transform:rotate(-5deg)} 75%{transform:rotate(5deg)} }
+.shake { animation: shake 0.4s ease; }
+
+/* ─── RANDOM BUTTON ─── */
+.random-btn {
+  width: 100%; padding: 14px 20px; margin-bottom: 16px;
+  background: linear-gradient(135deg, var(--v-purple), var(--v-pink));
+  color: #fff; border: none; border-radius: 14px;
+  font-family: inherit; font-size: 1rem; font-weight: 800;
+  cursor: pointer; box-shadow: var(--cp-shadow);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.random-btn:active { transform: scale(0.97); }
+.random-result {
+  background: var(--cp-surface); border: 2px solid var(--v-purple);
+  border-radius: 14px; padding: 16px; margin-bottom: 16px;
+  text-align: center; animation: slideUp 0.3s ease;
+}
+.random-result .random-emoji { font-size: 2.5rem; margin-bottom: 8px; }
+.random-result .random-name { font-size: 1.1rem; font-weight: 800; color: var(--cp-text); }
+.random-result .random-desc { font-size: 0.82rem; color: var(--cp-text-muted); margin-top: 4px; }
+.random-result .random-link { display: inline-block; margin-top: 10px; padding: 8px 16px; background: var(--cp-accent); color: var(--cp-accent-fg); border-radius: 10px; text-decoration: none; font-size: 0.8rem; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <button class="theme-toggle" id="themeToggle" aria-label="Wissel dag/nacht">☀️</button>
+  <button class="theme-toggle" id="randomBtn" style="left:16px;right:auto;" aria-label="Random activiteit">🎲</button>
+  <button class="theme-toggle" id="bingoBtn" style="left:68px;right:auto;" aria-label="Auto Bingo">🚗</button>
+  <h1 id="titleEgg">🏔️ Montafon 2026</h1>
+  <div class="subtitle">Schruns · Montafon · Zomervakantie</div>
+  <div class="dates">📅 3 – 22 augustus 2026</div>
+</div>
+
+<div class="progress-wrap" id="progressWrap" style="display:none;">
+  <div class="progress-label"><span>Activiteiten voltooid</span><span id="progressText">0/0</span></div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+</div>
+
+<!-- TAB: ACTIVITEITEN -->
+<div class="section active" id="sec-activiteiten">
+  <div class="section-title">🎯 Activiteiten & Dagtrips</div>
+  <div id="randomResult" style="display:none;"></div>
+  <div id="activityList"></div>
+  <div class="map-section">
+    <div class="map-label">🗺️ Kaart: alle activiteiten</div>
+    <div class="map-wrap" id="mapActiviteiten"></div>
+  </div>
+</div>
+
+<!-- TAB: ERLEBNIS -->
+<div class="section" id="sec-erlebnis">
+  <div class="section-title">🥾 Erlebniswege</div>
+  <div id="erlebnisList"></div>
+  <div class="section-title" style="margin-top:24px;">🎪 Lokale Feesten & Events</div>
+  <div class="info-block">
+    <p style="font-size:0.88rem;line-height:1.6;color:var(--cp-text-muted);">
+      Tijdens jullie verblijf zijn er diverse evenementen. Check 
+      <a href="https://www.montafon.at/en/Events" target="_blank" style="color:var(--cp-link);font-weight:700;">montafon.at/events</a>:<br><br>
+      🎵 <strong>Dorpsfeesten & Almfesten</strong><br>
+      🧀 <strong>Boerenmarkten</strong> – lokale kaas & ambachten<br>
+      🎆 <strong>Bergvuur</strong> – vuren op de bergtoppen<br>
+      🐄 <strong>Almabtrieb</strong> – feestelijke afdaling koeien (eind aug)
+    </p>
+  </div>
+  <div class="map-section">
+    <div class="map-label">🗺️ Kaart: wandelingen & Erlebniswege</div>
+    <div class="map-wrap" id="mapErlebnis"></div>
+  </div>
+</div>
+
+<!-- TAB: RESTAURANTS -->
+<div class="section" id="sec-restaurants">
+  <div class="section-title">🍽️ Restaurants & IJszaken</div>
+  <div id="restaurantList"></div>
+  <div class="map-section">
+    <div class="map-label">🗺️ Kaart: restaurants & ijszaken</div>
+    <div class="map-wrap" id="mapRestaurants"></div>
+  </div>
+</div>
+
+<!-- TAB: INFO -->
+<div class="section" id="sec-bergeplus">
+  <div class="section-title">⛰️ BergePLUS Kinderprogramma</div>
+  <p style="font-size:0.82rem;color:var(--cp-text-muted);margin-bottom:6px;line-height:1.5;">Wekelijks kinderprogramma (halve dag) met professionele gidsen. Herhaalt zich wekelijks in de zomer.</p>
+  <p style="font-size:0.78rem;color:var(--cp-text-muted);margin-bottom:16px;line-height:1.5;">💡 Volledig begeleid – je kunt je 9-jarige met een gerust hart meegeven!<br><a href="https://www.montafon.at/de/weitere-erlebnisse/bergeplus" target="_blank" style="color:var(--cp-link);font-weight:700;">🔗 Meer info op montafon.at</a></p>
+  <div id="bergeplusList"></div>
+  <div class="map-section">
+    <div class="map-label">🗺️ Kaart: BergePLUS locaties</div>
+    <div class="map-wrap" id="mapBergeplus"></div>
+  </div>
+</div>
+
+<div class="section" id="sec-info">
+  <div class="section-title">ℹ️ Handige Info</div>
+
+  <!-- WEER WIDGET -->
+  <div class="info-block" id="weatherBlock">
+    <h3>☀️ Weer in Montafon</h3>
+    <div id="weatherContent" style="font-size:0.85rem;color:var(--cp-text-muted);">Weer ophalen...</div>
+    <div style="margin-top:12px;">
+      <a href="https://www.bergfex.at/sommer/schruns-tschagguns/wetter/" target="_blank" class="btn-maps" style="width:auto;background:var(--v-blue);">🏔️ Bergfex Schruns</a>
+    </div>
+  </div>
+
+  <div class="info-block">
+    <h3>🎫 Montafon Brandnertal WildPass</h3>
+    <p style="font-size:0.82rem;color:var(--cp-text-muted);margin-bottom:14px;line-height:1.5;">Onbeperkt bergbahnen, zwembaden & OV:</p>
+    <table class="price-table">
+      <thead><tr><th>Duur</th><th>Volw.</th><th>Kind</th><th>Gezin</th></tr></thead>
+      <tbody>
+        <tr><td>7 dagen</td><td>€ 142</td><td>€ 81,50</td><td>€ 447</td></tr>
+        <tr><td>10 dagen</td><td>€ 170,50</td><td>€ 98</td><td>€ 537</td></tr>
+        <tr><td>14 dagen</td><td>€ 223,50</td><td>€ 128,50</td><td>€ 704</td></tr>
+        <tr><td>21 dagen</td><td>€ 322,50</td><td>€ 185,50</td><td>€ 1.016</td></tr>
+        <tr class="highlight"><td>Sommer WildPass</td><td colspan="2" style="text-align:center">Gezinskaart</td><td>€ 574</td></tr>
+      </tbody>
+    </table>
+    <div class="tip-box">💡 <strong>Bespaartip:</strong> De Sommer-WildPass (€574) is voor 20 dagen veruit het voordeligst!</div>
+  </div>
+  <div class="info-block">
+    <h3>🔌 Laadpalen in Schruns</h3>
+    <div class="charger-item"><div class="charger-name">⚡ illwerke vkw High-Power-Charger</div><div class="charger-specs">Batloggstraße 97 · 5× CCS 300 kW · 1× CCS 240 kW</div><span class="charger-badge fast">SNELLADER</span></div>
+    <div class="charger-item"><div class="charger-name">🔋 illwerke vkw Charging Station</div><div class="charger-specs">Veltlinerweg 2 · 2× Type 2 · 11 kW</div><span class="charger-badge normal">NORMAAL</span></div>
+    <div class="charger-item"><div class="charger-name">🔋 illwerke vkw Charging Station</div><div class="charger-specs">Batloggstraße 36 / Gemeentehuis · 1× Type 2 · 22 kW</div><span class="charger-badge normal">NORMAAL</span></div>
+    <div style="margin-top:12px;"><a href="https://www.google.com/maps/search/laadpaal+schruns+montafon" target="_blank" class="btn-maps" style="width:auto;">📍 Bekijk op kaart</a></div>
+  </div>
+  <div class="info-block">
+    <h3>🏡 Verblijf</h3>
+    <div style="font-size:0.88rem;line-height:1.7;"><strong>Verblijf</strong><br>📍 Schruns, Montafon</div>
+    <div style="margin-top:12px;"><a href="https://www.google.com/maps/search/Schruns+Montafon" target="_blank" class="btn-maps" style="width:auto;">📍 Locatie</a></div>
+  </div>
+  <div class="map-section">
+    <div class="map-label">🗺️ Kaart: laadpalen & verblijf</div>
+    <div class="map-wrap" id="mapInfo"></div>
+  </div>
+</div>
+
+<!-- EASTER EGG -->
+<div class="modal-overlay" id="easterModal">
+  <div class="modal-sheet">
+    <button class="modal-close" id="modalClose">✕</button>
+    <div class="modal-title">🇩🇪 Handig Duits voor kids!</div>
+    <p style="font-size:0.82rem;color:var(--cp-text-muted);margin-bottom:14px;">Klik op een categorie om de woorden te zien:</p>
+    <div id="wordCategories"></div>
+  </div>
+</div>
+
+<!-- BINGO MODAL -->
+<div class="modal-overlay" id="bingoModal">
+  <div class="modal-sheet" style="max-height:92dvh;">
+    <button class="modal-close" id="bingoClose">✕</button>
+    <div class="modal-title">🚗 Auto Bingo!</div>
+    <p style="font-size:0.82rem;color:var(--cp-text-muted);margin-bottom:14px;">Zie je het onderweg? Tik erop om af te vinken!</p>
+    <div id="bingoGrid" class="bingo-grid"></div>
+    <button id="bingoReset" class="bingo-reset-btn">🔄 Opnieuw beginnen</button>
+  </div>
+</div>
+
+<!-- TAB BAR -->
+<nav class="tab-bar">
+  <button class="tab-btn active" data-tab="activiteiten"><span class="tab-icon">🎯</span><span class="tab-label">Activiteiten</span></button>
+  <button class="tab-btn" data-tab="erlebnis"><span class="tab-icon">🥾</span><span class="tab-label">Erlebnis</span></button>
+  <button class="tab-btn" data-tab="bergeplus"><span class="tab-icon">⛰️</span><span class="tab-label">BergePlus</span></button>
+  <button class="tab-btn" data-tab="restaurants"><span class="tab-icon">🍽️</span><span class="tab-label">Restaurants</span></button>
+  <button class="tab-btn" data-tab="info"><span class="tab-icon">ℹ️</span><span class="tab-label">Info</span></button>
+</nav>
+
+<script>
+// ═══════ PHOTO URLS ═══════
+const photos = {
+  vaduz: [
+    'vaduz-1.jpg',
+    'vaduz-2.jpg',
+    'vaduz-3.jpg'
+  ],
+  golm: [
+    'golm-1.jpg',
+    'golm-2.jpg',
+    'golm-3.jpg'
+  ],
+  alpenbad: [
+    'alpenbad-1.jpg',
+    'alpenbad-2.jpg',
+    'alpenbad-3.jpg'
+  ],
+  aktivpark: [
+    'aktivpark-1.jpg'
+  ],
+  barenland: [
+    'barenland-1.jpg',
+    'barenland-2.jpg',
+    'barenland-3.jpg'
+  ],
+  mountainkart: [
+    'mountainkart-1.jpg',
+    'mountainkart-2.jpg'
+  ],
+  inatura: [
+    'inatura-1.jpg',
+    'inatura-2.jpg',
+    'inatura-3.jpg'
+  ],
+  lindau: [
+    'lindau-1.jpg',
+    'lindau-2.jpg',
+    'lindau-3.jpg'
+  ],
+  santis: [
+    'santis-1.jpg',
+    'santis-2.jpg',
+    'santis-3.jpg'
+  ]
+};
+const erlebnisPhotos = {
+  golmi: 'https://images.unsplash.com/photo-1551632811-561732d1e306?w=600&h=300&fit=crop',
+  seebliga: 'https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=600&h=300&fit=crop',
+  schatz: 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=600&h=300&fit=crop',
+  vierbarga: 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=600&h=300&fit=crop',
+  litzbach: 'https://images.unsplash.com/photo-1432405972618-c6b0cfba5849?w=600&h=300&fit=crop'
+};
+
+// ═══════ MAP MARKER DATA ═══════
+const activityMarkers = [
+  { lat: 47.1415, lng: 9.5215, name: '🏰 Vaduz Castle', desc: 'Liechtenstein – Gratis' },
+  { lat: 47.0695, lng: 9.8310, name: '🎢 Bewegungsberg Golm', desc: 'Klimbos & Alpine Coaster' },
+  { lat: 47.0795, lng: 9.9210, name: '🏊 Alpenbad Montafon', desc: 'Zwembad – Gratis met WP' },
+  { lat: 47.0755, lng: 9.9060, name: '🏕️ Aktivpark Montafon', desc: 'Zwemmeer – Gratis met WP' },
+  { lat: 47.1300, lng: 10.0950, name: '🐻 Bärenland Sonnenkopf', desc: 'Berenspeelpark' },
+  { lat: 46.9740, lng: 9.9050, name: '🏎️ Mountainkarten', desc: 'Gargellen – € 80/gezin' },
+  { lat: 47.4120, lng: 9.7440, name: '🔬 Inatura Science Center', desc: 'Dornbirn – € 32,20' },
+  { lat: 47.5460, lng: 9.6850, name: '⛵ Lindau Bodensee', desc: 'Dagtrip – ca. € 46' },
+  { lat: 47.2490, lng: 9.3430, name: '🇨🇭 Säntis', desc: 'Zwitserland – ca. € 170' }
+];
+
+const erlebnisMarkers = [
+  { lat: 47.0695, lng: 9.8310, name: "🔍 Golmi's Forschungspfad", desc: 'Golmerbahn – 2,4 km' },
+  { lat: 47.0420, lng: 9.9300, name: '💧 Naturkräftepfad', desc: 'Hochjoch – 2,3 km' },
+  { lat: 47.0150, lng: 9.9650, name: '🗺️ Schatzsuche Garfrescha', desc: 'St. Gallenkirch – 2,2 km' },
+  { lat: 46.9920, lng: 10.0150, name: '🐄 Themenweg Vier Barga', desc: 'Gaschurn – 2,5 km' },
+  { lat: 47.0880, lng: 9.9800, name: '🌊 Erlebnisweg Litzbach', desc: 'Silbertal – Vlak' }
+];
+
+const restaurantMarkers = [
+  { lat: 47.1545, lng: 9.8220, name: '🍣 YIKA Sushi', desc: 'Bludenz ⭐4.8' },
+  { lat: 47.1535, lng: 9.8250, name: '🍣 KOI Asian Kitchen', desc: 'Bludenz ⭐4.8' },
+  { lat: 47.0800, lng: 9.9200, name: '🍽️ Litz-Stöbli', desc: 'Schruns ⭐4.5' },
+  { lat: 47.0805, lng: 9.9170, name: '🍕 Pizzeria Azzurro', desc: '⭐4.5' },
+  { lat: 47.0815, lng: 9.9185, name: '🇬🇷 Dimi\'s Cafe', desc: '⭐4.1' },
+  { lat: 47.0935, lng: 9.9740, name: '🍖 Gasthof Hirschen', desc: 'Silbertal ⭐4.8' },
+  { lat: 47.1520, lng: 9.8180, name: '🍕 Antonio Pizza', desc: 'Bludenz ⭐4.6' },
+  { lat: 47.1505, lng: 9.8320, name: '🍔 Kohldampf', desc: 'Bludenz ⭐4.4' },
+  { lat: 47.0770, lng: 9.9080, name: '🍝 TUI BLUE', desc: 'Tschagguns ⭐4.6' },
+  { lat: 47.0790, lng: 9.9215, name: '🍕 Pizzeria al Fiume', desc: '⭐4.4' },
+  { lat: 47.0760, lng: 9.9070, name: '🍕 Casa Mia', desc: 'Tschagguns ⭐4.5' },
+  { lat: 47.0800, lng: 9.9178, name: '⭐ Café Munterbunt', desc: 'Score 5.0!' },
+  { lat: 47.0802, lng: 9.9183, name: '🍷 Brasserie Leonis', desc: '⭐4.9' },
+  { lat: 47.0797, lng: 9.9175, name: '🍔 St. Josefsheim', desc: 'Gondel inside! ⭐4.6' },
+  { lat: 47.0803, lng: 9.9192, name: '🍖 Sepplstoba', desc: '⭐4.6' },
+  { lat: 47.0801, lng: 9.9180, name: '🍦 Eisplatzl', desc: 'Beste ijs! ⭐4.8' },
+  { lat: 47.0799, lng: 9.9177, name: '🍦 Konditorei Frederick', desc: '⭐4.6' },
+  { lat: 47.1530, lng: 9.8230, name: '🍦 Eis-Café Cortina', desc: 'Bludenz ⭐4.5' },
+  { lat: 47.0798, lng: 9.9182, name: '🍦 Café Fend', desc: '⭐4.4' },
+  { lat: 47.0793, lng: 9.9205, name: '🍹 Alpenbad Terras', desc: '⭐4.6' },
+  { lat: 47.0785, lng: 9.9168, name: '🍹 Urmonti Bar', desc: '⭐4.3' },
+  { lat: 47.0800, lng: 9.9190, name: '🍹 Litz Café & Bar', desc: '⭐4.4' }
+];
+
+const infoMarkers = [
+  { lat: 47.0808, lng: 9.9225, name: '⚡ Snellader 300kW', desc: 'Batloggstraße 97' },
+  { lat: 47.0790, lng: 9.9200, name: '🔋 Laadpaal 11kW', desc: 'Veltlinerweg 2' },
+  { lat: 47.0800, lng: 9.9215, name: '🔋 Laadpaal 22kW', desc: 'Batloggstraße 36' },
+  { lat: 47.0800, lng: 9.9200, name: '📍 Schruns', desc: 'Montafon, Vorarlberg' }
+];
+
+const bergeplusData = [
+  { dag:'Maandag', emoji:'🎒', activiteit:'Gaglaweg St. Gallenkirch met Spiel & Spaß im Silvretta Park', tijd:'09:30 Uhr', duur:'Halfdagprogramma tot 13:30 uur', locatie:'Tourismusinformation St. Gallenkirch', paklijst:'Comfortabele (sport)kleding, dichte schoenen, kleine rugzak met een bidon water en een snack.', foto:'bp-maandag.png', lat:47.0020, lng:9.9770 },
+  { dag:'Dinsdag', emoji:'🦙', activiteit:'Spiel & Spaß am Alpakahof', tijd:'09:30 Uhr', duur:'Halfdagprogramma tot 13:30 uur', locatie:'Tourismusinformation Gaschurn', paklijst:'Kleding die vies mag worden, petje tegen de zon, drinken en een kleine tussendoortje.', foto:'bp-dinsdag.png', lat:46.9920, lng:10.0150 },
+  { dag:'Woensdag', emoji:'🐴', activiteit:'Spiel & Spaß bei den Bergpferden Vergalda', tijd:'09:45 Uhr', duur:'Halfdagprogramma tot 13:30 uur', locatie:'Tourismusinformation Gargellen', paklijst:'Lange broek verplicht (i.v.m. de paarden), stevige dichte schoenen, rugzakje met drinken.', foto:'bp-woensdag.png', lat:46.9740, lng:9.9050 },
+  { dag:'Donderdag', emoji:'🌲', activiteit:'Auf Entdeckungsreise im Naturraum Verwall Partenen', tijd:'09:30 Uhr', duur:'Halfdagprogramma tot 13:30 uur', locatie:'Tourismusinformation Gaschurn', paklijst:'Stevige wandelschoenen of goede sportschoenen, regenjas (voor de zekerheid), gevulde bidon.', foto:'bp-donderdag.png', lat:46.9720, lng:10.0650 },
+  { dag:'Vrijdag', emoji:'🧗', activiteit:'Kletterspaß im Waldseilpark Golm', tijd:'09:15 Uhr', duur:'Halfdagprogramma tot 13:30 uur', locatie:'Kulturbühne Schruns', paklijst:'Sportieve kleding, stevige schoenen met profiel, kleine snack en drinken. (Klimuitrusting aanwezig).', foto:'bp-vrijdag.png', lat:47.0800, lng:9.9200 },
+  { dag:'Zaterdag', emoji:'😴', activiteit:'Geen specifiek kinderprogramma', tijd:'-', duur:'-', locatie:'-', paklijst:'Ideale dag voor eigen uitstapjes met het gezin.', lat:null, lng:null },
+  { dag:'Zondag', emoji:'😴', activiteit:'Geen specifiek kinderprogramma', tijd:'-', duur:'-', locatie:'-', paklijst:'Ideale dag voor eigen uitstapjes met het gezin.', lat:null, lng:null }
+];
+
+const bergeplusMarkers = bergeplusData.filter(b => b.lat !== null).map(b => ({
+  lat: b.lat, lng: b.lng, name: b.emoji + ' ' + b.activiteit, desc: b.dag + ' · ' + b.tijd
+}));
+
+// ═══════ DATA ═══════
+const activities = [
+  { id:'vaduz', name:'Vaduz Castle (Liechtenstein)', emoji:'🏰', summary:'Historisch kasteel, wandeling & uitzicht – gratis!', description:'Historisch kasteel van buitenaf te bewonderen. Wandeling en toegang gratis. Prachtig uitzicht over Vaduz en de Rijn.', priceAdult:'€ 0', priceKid:'€ 0', priceFamily:'€ 0', priceFamilyWP:'€ 0', wildpass:false, score:'⭐ 4.2 (526 reviews)', drive:'~40 min.', maps:'https://www.google.com/maps/search/Vaduz+Castle+Liechtenstein' },
+  { id:'golm', name:'Bewegungsberg Golm', emoji:'🎢', summary:'Klimbos, Alpine Coaster & berglift – ultiem avontuur!', description:'Met WildPass vervallen liftkosten (€107). Je betaalt dan nog Klimbos (€140,60) en Alpine Coaster (€59,40).', priceAdult:'-', priceKid:'-', priceFamily:'ca. € 250', priceFamilyWP:'ca. € 200', wildpass:true, lift:'€ 107 (gratis met WildPass)', score:'', drive:'~10 min.', maps:'https://www.google.com/maps/search/Bewegungsberg+Golm+Tschagguns' },
+  { id:'alpenbad', name:'Alpenbad Montafon', emoji:'🏊', summary:'Grootste openluchtzwembad met glijbanen – gratis met WP!', description:'Grootste openluchtzwembad van de regio met glijbanen. Volledig gratis met de WildPass.', priceAdult:'€ 7,20', priceKid:'€ 4,80', priceFamily:'ca. € 24', priceFamilyWP:'€ 0 (gratis!)', wildpass:true, score:'', drive:'~5 min.', maps:'https://www.google.com/maps/search/Alpenbad+Montafon+Schruns' },
+  { id:'aktivpark', name:'Aktivpark Montafon', emoji:'🏕️', summary:'Ecologisch zwemmeer & speeltent – gratis met WP!', description:'Ecologisch zwemmeer en overdekte speeltent in Tschagguns. Volledig gratis met WildPass.', priceAdult:'€ 7,20', priceKid:'€ 4,80', priceFamily:'ca. € 24', priceFamilyWP:'€ 0 (gratis!)', wildpass:true, score:'', drive:'~5 min.', maps:'https://www.google.com/maps/search/Aktivpark+Montafon+Tschagguns' },
+  { id:'barenland', name:'Bärenland Sonnenkopf', emoji:'🐻', summary:'Berenspeelpark – berglift gratis met WildPass!', description:'Park is gratis. Met WildPass is de berglift ook gedekt. Geweldig themapark op de berg!', priceAdult:'€ 25', priceKid:'€ 13,50', priceFamily:'€ 77', priceFamilyWP:'€ 0 (gratis!)', wildpass:true, score:'', drive:'~30 min.', maps:'https://www.google.com/maps/search/Bärenland+Sonnenkopf+Klostertal' },
+  { id:'mountainkart', name:'Mountainkarten Gargellen', emoji:'🏎️', summary:'Stoere driewielers over brede bergwegen!', description:'Grote stoere driewielers over een brede bergweg. Niet in WildPass, vaste prijs per kart.', priceAdult:'€ 20', priceKid:'€ 20', priceFamily:'€ 80', priceFamilyWP:'€ 80', wildpass:false, score:'', drive:'~25 min.', maps:'https://www.google.com/maps/search/Mountainkart+Gargellen' },
+  { id:'inatura', name:'Inatura Science Center', emoji:'🔬', summary:'Interactief museum – perfect voor een regendag!', description:'Interactief museum in Dornbirn vol proefjes en opgezette dieren.', priceAdult:'€ 14', priceKid:'€ 6,90', priceFamily:'€ 32,20', priceFamilyWP:'€ 32,20', wildpass:false, score:'', drive:'~50 min.', maps:'https://www.google.com/maps/search/Inatura+Science+Center+Dornbirn' },
+  { id:'lindau', name:'Dagtrip Lindau & Bodensee', emoji:'⛵', summary:'Historische straatjes, vuurtoren & boottocht.', description:'Eiland Lindau aan de Bodensee. Vuurtoren, straatjes, optionele boottocht.', priceAdult:'ca. € 16,50', priceKid:'ca. € 10', priceFamily:'ca. € 46', priceFamilyWP:'ca. € 46', wildpass:false, score:'', drive:'~1 uur', maps:'https://www.google.com/maps/search/Lindau+Insel+Bodensee' },
+  { id:'santis', name:'Dagtrip Säntis & Appenzell', emoji:'🇨🇭', summary:'Zweefbaan naar 2502m – uitzicht over 6 landen!', description:'Zweefbaan naar Säntis in Zwitserland. Spectaculair uitzicht! Buiten WildPass.', priceAdult:'ca. € 61,50', priceKid:'ca. € 30,80', priceFamily:'ca. € 170', priceFamilyWP:'ca. € 170', wildpass:false, score:'', drive:'~1u 25 min.', maps:'https://www.google.com/maps/search/Säntis+Schwebebahn' }
+];
+
+const erlebnisse = [
+  { id:'golmi', name:"Golmi's Forschungspfad", emoji:'🔍', location:'Tschagguns (Golmerbahn)', covered:true, color:'linear-gradient(135deg, #dcfce7, #d1fae5)', description:'Afdaling 2,4 km (~2 uur) met 22 interactieve stations. Raadsels, knikkerbaan en waterspeelplaats.', stats:['2,4 km','~2 uur','22 stations'] },
+  { id:'seebliga', name:'Naturkräftepfad Seebligasee', emoji:'💧', location:'Schruns (Hochjoch Bahn)', covered:true, color:'linear-gradient(135deg, #dbeafe, #e0f2fe)', description:'Bergwandeling 2,3 km rond Seebligasee op 2.000m. Waterpompen, vlotten en balanceer-parcours.', stats:['2,3 km','2.000m','Waterspel'] },
+  { id:'schatz', name:'Schatzsuche Garfrescha', emoji:'🗺️', location:'St. Gallenkirch (Garfrescha Bahn)', covered:true, color:'linear-gradient(135deg, #fef3c7, #fef9c3)', description:'Schatkaart halen bij berglift, detective-route 2,2 km door bos. Verrassing aan het einde!', stats:['2,2 km','Schatkaart','Verrassing!'] },
+  { id:'vierbarga', name:'Themenweg Vier Barga', emoji:'🐄', location:'Gaschurn (Versettla Bahn)', covered:true, color:'linear-gradient(135deg, #ede9fe, #f3e8ff)', description:'Educatieve wandeling 2,5 km. Hoogtepunt: Alpenwelt Nova met speelplaats en kinderboerderij.', stats:['2,5 km','Kinderboerderij','Speelplaats'] },
+  { id:'litzbach', name:'Erlebnisweg Litzbach', emoji:'🌊', location:'Silbertal', covered:true, color:'linear-gradient(135deg, #ccfbf1, #d1fae5)', description:'Schaduwrijke vlakke route langs bergbeek de Litz. Ideaal bij warm weer – constant waterspel.', stats:['Vlak','Schaduwrijk','Waterspel'] }
+];
+
+const restaurants = [
+  { cat:'auto', name:'YIKA Sushi & More', type:'Sushi & Fusion', reach:'15 min. (Bludenz)', score:'4.8', reviews:'1.092', price:'€10–€20', desc:'Kleurrijke sushiboxen en warme fusiongerechten.', maps:'https://www.google.com/maps/search/YIKA+Sushi+More+Bludenz' },
+  { cat:'auto', name:'KOI Asian Kitchen', type:'Premium Sushi', reach:'15 min. (Bludenz)', score:'4.8', reviews:'140+', price:'€22–€38', desc:'Fantastische fusionkeuken. Hippe sfeer.', maps:'https://www.google.com/maps/search/KOI+Asian+Kitchen+Bludenz' },
+  { cat:'auto', name:'Litz-Stöbli', type:'Traditioneel', reach:'Schruns', score:'4.5', reviews:'536', price:'€20–€30', desc:'Gezellige sfeer, goede lokale gerechten.', maps:'https://www.google.com/maps/search/Litz-Stöbli+Schruns' },
+  { cat:'auto', name:'Pizzeria Azzurro', type:'Italiaans', reach:'In de regio', score:'4.5', reviews:'921', price:'€20–€30', desc:'Heerlijke pizza\'s en Italiaanse specialiteiten.', maps:'https://www.google.com/maps/search/Pizzeria+Azzurro+Montafon' },
+  { cat:'auto', name:"Dimi's Cafe & Bistro", type:'Grieks', reach:'In de regio', score:'4.1', reviews:'503', price:'€20–€30', desc:'Griekse specialiteiten, ongedwongen sfeer.', maps:'https://www.google.com/maps/search/Dimis+Cafe+Bistro+Montafon' },
+  { cat:'auto', name:'Gasthof Hirschen', type:'Traditioneel Oostenrijks', reach:'8 min. (Silbertal)', score:'4.8', reviews:'280+', price:'€20–€32', desc:'Authentieke herberg. Alpen-Stube sfeer.', maps:'https://www.google.com/maps/search/Gasthof+Hirschen+Silbertal' },
+  { cat:'auto', name:'Antonio Restaurant', type:'Houtovenpizza', reach:'14 min. (Bludenz)', score:'4.6', reviews:'560+', price:'€15–€26', desc:'Allerbeste pizza\'s, kindvriendelijk.', maps:'https://www.google.com/maps/search/Antonio+Restaurant+Pizza+Bludenz' },
+  { cat:'auto', name:'Wirtshaus Kohldampf', type:'Burgers & Grill', reach:'14 min. (Bludenz)', score:'4.4', reviews:'740+', price:'€18–€30', desc:'Levendig + bowlingbaan ernaast!', maps:'https://www.google.com/maps/search/Wirtshaus+Kohldampf+Bludenz' },
+  { cat:'auto', name:'TUI BLUE Restaurant', type:'Modern Oostenrijks', reach:'5 min. rijden', score:'4.6', reviews:'490+', price:'€18–€28', desc:'Modern restaurant, veel gezinnen.', maps:'https://www.google.com/maps/search/TUI+BLUE+Restaurant+Tschagguns' },
+  { cat:'fiets', name:'Pizzeria al Fiume', type:'Steenovenspizza', reach:'5-6 min. fietsen', score:'4.4', reviews:'777', price:'€10–€20', desc:'Terras aan de rivier de Litz.', maps:'https://www.google.com/maps/search/Pizzeria+al+Fiume+Schruns' },
+  { cat:'fiets', name:'Pizzeria Casa Mia', type:'Pizza & Pasta', reach:'6-7 min. fietsen', score:'4.5', reviews:'802', price:'€10–€20', desc:'Familierestaurant Tschagguns.', maps:'https://www.google.com/maps/search/Pizzeria+Casa+Mia+Tschagguns' },
+  { cat:'fiets', name:'Café Munterbunt', type:'Oostenrijks', reach:'5 min. fietsen', score:'5.0', reviews:'130+', price:'€14–€24', desc:'Perfecte score! Kerkplein Schruns.', maps:'https://www.google.com/maps/search/Café+Bistro+Munterbunt+Schruns' },
+  { cat:'fiets', name:'Brasserie Leonis', type:'Europees / Fusion', reach:'4 min. fietsen', score:'4.9', reviews:'110+', price:'€25–€40', desc:'Hip. Biefstuk, burgers, fusion.', maps:'https://www.google.com/maps/search/Brasserie+Leonis+Schruns' },
+  { cat:'fiets', name:'St. Josefsheim', type:'Burgers & Oostenrijks', reach:'4-5 min. fietsen', score:'4.6', reviews:'680+', price:'€16–€28', desc:'Gondel als zitplek! Grote Gastgarten.', maps:'https://www.google.com/maps/search/St.+Josefsheim+Schruns' },
+  { cat:'fiets', name:'Sepplstoba', type:'Traditioneel Oostenrijks', reach:'6 min. fietsen', score:'4.6', reviews:'150+', price:'€18–€30', desc:'Grote schnitzels, geliefd bij families.', maps:'https://www.google.com/maps/search/Restaurant+Sepplstoba+Schruns' },
+  { cat:'ijs', name:'Eisplatzl', type:'Ambachtelijk IJs', reach:'5 min. fietsen', score:'4.8', reviews:'282', price:'€1–€10', desc:'Beste ijs bij het kerkplein!', maps:'https://www.google.com/maps/search/Eisplatzl+Eisdiele+Schruns' },
+  { cat:'ijs', name:'Konditorei Frederick', type:'Konditorei / IJs', reach:'5 min. fietsen', score:'4.6', reviews:'120+', price:'€4–€9', desc:'Reusachtige feestelijke ijscoupes!', maps:'https://www.google.com/maps/search/Café+Konditorei+Frederick+Schruns' },
+  { cat:'ijs', name:'Eis-Café Cortina', type:'Italiaans IJs', reach:'14 min. (Bludenz)', score:'4.5', reviews:'610+', price:'€3–€8', desc:'Grootste ijssalon Bludenz.', maps:'https://www.google.com/maps/search/Eis+Café+Cortina+Bludenz' },
+  { cat:'ijs', name:'Café Fend', type:'IJs & Gebak', reach:'5 min. fietsen', score:'4.4', reviews:'390+', price:'€4–€9', desc:'Coupes of bolletje to go.', maps:'https://www.google.com/maps/search/Café+Konditorei+Fend+Schruns' },
+  { cat:'drink', name:'Alpenbad Terras', type:'Terras', reach:'5 min. fietsen', score:'4.6', reviews:'400+', price:'€4–€8', desc:'Zon terwijl kids ravotten.', maps:'https://www.google.com/maps/search/Alpenbad+Montafon+Schruns' },
+  { cat:'drink', name:'Urmonti Bar', type:'Lounge', reach:'5 min. fietsen', score:'4.3', reviews:'290+', price:'€4–€9', desc:'Loungeterras bij Hochjochbahn.', maps:'https://www.google.com/maps/search/Urmonti+Bar+Schruns' },
+  { cat:'drink', name:'Litz Café & Bar', type:'Café', reach:'5 min. fietsen', score:'4.4', reviews:'480+', price:'€4–€8', desc:'Centrum, mensen kijken.', maps:'https://www.google.com/maps/search/Litz+Café+Bar+Schruns' }
+];
+
+// ═══════ GERMAN WORDS ═══════
+const germanWords = [
+  { category: '👋 Begroeting & Beleefd', words: [
+    ['Hallo','Hallo / Grüß Gott','Hallo / Grüss Got'],
+    ['Goedemorgen','Guten Morgen','Goeten Morgen'],
+    ['Goedemiddag','Guten Tag','Goeten Taag'],
+    ['Goedenavond','Guten Abend','Goeten Aabent'],
+    ['Doei!','Tschüss!','Tsjüss!'],
+    ['Alsjeblieft','Bitte','Bitte'],
+    ['Dankjewel','Danke schön','Danke sjön'],
+    ['Sorry','Entschuldigung','Ent-sjoel-di-goeng'],
+    ['Ja / Nee','Ja / Nein','Jaa / Nain'],
+    ['Spreekt u Engels?','Sprechen Sie Englisch?','Sjprechen Zie Englisj?']
+  ]},
+  { category: '🍽️ In het restaurant', words: [
+    ['De menukaart','Die Speisekarte','Die Sjpaize-karte'],
+    ['Ik wil graag...','Ich möchte gerne...','Ieg meugte gerne...'],
+    ['De rekening','Die Rechnung','Die Reegh-noeng'],
+    ['Water','Wasser','Vasser'],
+    ['Appelsap','Apfelsaft','Apfel-zaft'],
+    ['IJs','Eis','Ais'],
+    ['Pizza','Pizza','Pitsa'],
+    ['Patat / Friet','Pommes','Pommes'],
+    ['Schnitzel','Schnitzel','Sjnitsel'],
+    ['Lekker!','Lecker!','Lekker!'],
+    ['Nog eentje?','Noch eins?','Nog ains?']
+  ]},
+  { category: '⛰️ Op de berg', words: [
+    ['Berg','Berg','Bèrg'],
+    ['Dal','Tal','Taal'],
+    ['Meertje','See','Zey'],
+    ['Beek','Bach','Bagg (keelklank)'],
+    ['Bos','Wald','Valt'],
+    ['Wandelpad','Wanderweg','Vander-veyg'],
+    ['Kabelbaan','Seilbahn','Zail-baan'],
+    ['Speelplaats','Spielplatz','Sjpiel-plats'],
+    ['Zwembad','Schwimmbad','Sjvim-baat'],
+    ['Glijbaan','Rutsche','Roet-sje'],
+    ['Waterval','Wasserfall','Vasser-fal'],
+    ['Uitzichtpunt','Aussichtspunkt','Aus-zigts-poenkt']
+  ]},
+  { category: '🔢 Getallen', words: [
+    ['1 – Één','Eins','Ains'],
+    ['2 – Twee','Zwei','Tsvai'],
+    ['3 – Drie','Drei','Drai'],
+    ['4 – Vier','Vier','Fier'],
+    ['5 – Vijf','Fünf','Fünnef'],
+    ['6 – Zes','Sechs','Zex'],
+    ['7 – Zeven','Sieben','Zieben'],
+    ['8 – Acht','Acht','Acht (keel)'],
+    ['9 – Negen','Neun','Noin'],
+    ['10 – Tien','Zehn','Tseyn']
+  ]},
+  { category: '🧭 Richtingen', words: [
+    ['Links','Links','Links'],
+    ['Rechts','Rechts','Reggts'],
+    ['Rechtdoor','Geradeaus','Geraade-aus'],
+    ['Waar is...?','Wo ist...?','Voo ist...?'],
+    ['Dichtbij','In der Nähe','In der Nèè-uh'],
+    ['Ver weg','Weit weg','Vait veg'],
+    ['Parkeerplaats','Parkplatz','Park-plats'],
+    ['Ingang','Eingang','Ain-gang'],
+    ['Uitgang','Ausgang','Aus-gang']
+  ]},
+  { category: '🆘 Noodgevallen', words: [
+    ['Help!','Hilfe!','Hilfe!'],
+    ['Ik heb pijn','Ich habe Schmerzen','Ieg haabe Sjmertsen'],
+    ['Ziekenhuis','Krankenhaus','Kranken-haus'],
+    ['Apotheek','Apotheke','Apo-teeke'],
+    ['WC / Toilet','Toilette','Twa-lette'],
+    ['Hoeveel kost dit?','Wie viel kostet das?','Vie fiel kostet das?'],
+    ['Gratis','Kostenlos','Kosten-loos'],
+    ['Kinderen','Kinder','Kinder'],
+    ['Gezin','Familie','Fa-mielje']
+  ]}
+];
+
+// ═══════ STATE ═══════
+const STATE_KEY = 'montafon2026_state';
+let state = JSON.parse(localStorage.getItem(STATE_KEY) || '{}');
+function saveState() { localStorage.setItem(STATE_KEY, JSON.stringify(state)); }
+
+// ═══════ THEME TOGGLE ═══════
+const themeBtn = document.getElementById('themeToggle');
+function updateThemeIcon() { themeBtn.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '☀️' : '🌙'; }
+updateThemeIcon();
+themeBtn.addEventListener('click', () => {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const t = isDark ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', t);
+  localStorage.setItem('montafon_theme', t);
+  updateThemeIcon();
+  themeBtn.classList.add('pop');
+  setTimeout(() => themeBtn.classList.remove('pop'), 300);
+});
+
+// ═══════ EASTER EGG ═══════
+let eggClicks = 0, eggTimer = null;
+document.getElementById('titleEgg').addEventListener('click', () => {
+  eggClicks++;
+  if (eggTimer) clearTimeout(eggTimer);
+  if (eggClicks >= 3) {
+    eggClicks = 0;
+    document.getElementById('titleEgg').classList.add('shake');
+    setTimeout(() => document.getElementById('titleEgg').classList.remove('shake'), 400);
+    showEasterEgg();
+  } else { eggTimer = setTimeout(() => eggClicks = 0, 800); }
+});
+function showEasterEgg() {
+  const c = document.getElementById('wordCategories');
+  c.innerHTML = '';
+  germanWords.forEach(cat => {
+    const div = document.createElement('div');
+    div.className = 'word-category';
+    div.innerHTML = `<div class="word-cat-header">${cat.category} <span class="arrow">▼</span></div>
+      <div class="word-cat-body"><div class="word-row hdr"><span>Nederlands</span><span>Duits</span><span>Uitspraak</span></div>
+      ${cat.words.map(w => `<div class="word-row"><span>${w[0]}</span><span>${w[1]}</span><span class="pron">${w[2]}</span></div>`).join('')}</div>`;
+    div.querySelector('.word-cat-header').addEventListener('click', () => div.classList.toggle('open'));
+    c.appendChild(div);
+  });
+  document.getElementById('easterModal').classList.add('active');
+}
+document.getElementById('modalClose').addEventListener('click', () => document.getElementById('easterModal').classList.remove('active'));
+document.getElementById('easterModal').addEventListener('click', e => { if (e.target === e.currentTarget) document.getElementById('easterModal').classList.remove('active'); });
+
+// ═══════ TAB SWITCHING ═══════
+let maps = {};
+let mapsInitialized = { activiteiten: false, erlebnis: false, bergeplus: false, restaurants: false, info: false };
+
+function initMapForTab(tab) {
+  if (mapsInitialized[tab]) {
+    if (maps[tab]) { maps[tab].invalidateSize(); }
+    return;
+  }
+  mapsInitialized[tab] = true;
+  setTimeout(() => {
+    if (tab === 'activiteiten') maps.activiteiten = createMap('mapActiviteiten', activityMarkers, null);
+    if (tab === 'erlebnis') maps.erlebnis = createMap('mapErlebnis', erlebnisMarkers, 12);
+    if (tab === 'bergeplus') maps.bergeplus = createMap('mapBergeplus', bergeplusMarkers, 12);
+    if (tab === 'restaurants') maps.restaurants = createMap('mapRestaurants', restaurantMarkers, 14);
+    if (tab === 'info') maps.info = createMap('mapInfo', infoMarkers, 16);
+  }, 100);
+}
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('sec-' + btn.dataset.tab).classList.add('active');
+    document.getElementById('progressWrap').style.display = btn.dataset.tab === 'activiteiten' ? 'block' : 'none';
+    window.scrollTo(0, 0);
+    initMapForTab(btn.dataset.tab);
+  });
+});
+
+// ═══════ RENDER ACTIVITIES ═══════
+function updateProgress() {
+  const total = activities.length, done = activities.filter(a => state[a.id]).length;
+  document.getElementById('progressText').textContent = done + '/' + total;
+  document.getElementById('progressFill').style.width = (done / total * 100) + '%';
+  document.getElementById('progressWrap').style.display = 'block';
+}
+function renderActivities() {
+  const list = document.getElementById('activityList');
+  list.innerHTML = '';
+  activities.forEach(a => {
+    const checked = state[a.id] ? 'checked' : '';
+    const isFree = a.priceFamilyWP.includes('gratis') || (a.priceFamilyWP === '€ 0');
+    const photoArr = photos[a.id] || [];
+    const card = document.createElement('div');
+    card.className = `activity-card ${checked}`;
+    card.innerHTML = `
+      <div class="activity-header">
+        <div class="activity-checkbox" data-id="${a.id}">${state[a.id]?'✓':''}</div>
+        <div class="activity-info"><div class="activity-name">${a.emoji} ${a.name}</div><div class="activity-summary">${a.drive ? '🚗 '+a.drive+' · ' : ''}${a.summary}</div></div>
+        <span class="activity-price-badge ${isFree?'free':''}">${isFree?'GRATIS*':a.priceFamilyWP}</span>
+        <button class="activity-expand-btn">▼</button>
+      </div>
+      <div class="activity-detail"><div class="activity-detail-inner">
+        <div class="detail-description">${a.description}</div>
+        <div class="carousel-wrap">${photoArr.map(u=>`<div class="carousel-item"><img src="${u}" alt="${a.name}" loading="lazy"></div>`).join('')}</div>
+        <div class="detail-grid">
+          <div class="detail-item"><div class="label">Volwassene</div><div class="value">${a.priceAdult}</div></div>
+          <div class="detail-item"><div class="label">Kind (9j)</div><div class="value">${a.priceKid}</div></div>
+          <div class="detail-item"><div class="label">Zonder WP</div><div class="value">${a.priceFamily}</div></div>
+          <div class="detail-item"><div class="label">Mét WildPass</div><div class="value ${isFree?'free-val':''}">${a.priceFamilyWP}</div></div>
+          ${a.lift?`<div class="detail-item" style="grid-column:span 2"><div class="label">Berglift</div><div class="value">${a.lift}</div></div>`:''}
+          ${a.drive?`<div class="detail-item" style="grid-column:span 2"><div class="label">🚗 Rijden vanaf verblijf</div><div class="value">${a.drive}</div></div>`:''}
+        </div>
+        ${a.score?`<div style="font-size:0.82rem;color:var(--cp-text-muted);margin-bottom:12px">${a.score}</div>`:''}
+        <a href="${a.maps}" target="_blank" class="btn-maps" style="width:100%">📍 Open in Google Maps</a>
+      </div></div>`;
+    list.appendChild(card);
+  });
+  list.querySelectorAll('.activity-checkbox').forEach(cb => {
+    cb.addEventListener('click', e => { e.stopPropagation(); const id=cb.dataset.id; state[id]=!state[id]; saveState(); cb.textContent=state[id]?'✓':''; cb.closest('.activity-card').classList.toggle('checked',state[id]); if(state[id])cb.classList.add('pop'); setTimeout(()=>cb.classList.remove('pop'),300); updateProgress(); });
+  });
+  list.querySelectorAll('.activity-expand-btn').forEach(b => { b.addEventListener('click', e => { e.stopPropagation(); b.closest('.activity-card').classList.toggle('expanded'); }); });
+  list.querySelectorAll('.activity-info').forEach(i => { i.addEventListener('click', () => i.closest('.activity-card').classList.toggle('expanded')); });
+  updateProgress();
+}
+
+// ═══════ RENDER ERLEBNIS ═══════
+function renderErlebnis() {
+  const list = document.getElementById('erlebnisList');
+  list.innerHTML = '';
+  erlebnisse.forEach(e => {
+    const photo = erlebnisPhotos[e.id];
+    const card = document.createElement('div');
+    card.className = 'erlebnis-card';
+    card.innerHTML = `
+      <div class="erlebnis-header">
+        <div class="erlebnis-icon" style="background:${e.color}">${e.emoji}</div>
+        <div class="erlebnis-info"><div class="erlebnis-name">${e.name}</div><div class="erlebnis-location">📍 ${e.location}</div></div>
+        ${e.covered?'<span class="erlebnis-badge">✓ WildPass</span>':''}
+      </div>
+      <div class="erlebnis-detail"><div class="erlebnis-detail-inner">
+        ${photo?`<img class="erlebnis-photo" src="${photo}" alt="${e.name}" loading="lazy">`:''}
+        ${e.description}
+        <div class="erlebnis-stats">${e.stats.map(s=>`<span class="erlebnis-stat">${s}</span>`).join('')}</div>
+      </div></div>`;
+    card.addEventListener('click', () => card.classList.toggle('expanded'));
+    list.appendChild(card);
+  });
+}
+
+// ═══════ RENDER RESTAURANTS ═══════
+function renderRestaurants() {
+  const list = document.getElementById('restaurantList');
+  list.innerHTML = '';
+  [{key:'fiets',label:'🚲 Met de fiets'},{key:'ijs',label:'🍦 IJsje halen'},{key:'drink',label:'🍹 Drankje doen'},{key:'auto',label:'🚗 Met de auto'}].forEach(cat => {
+    const items = restaurants.filter(r => r.cat === cat.key);
+    if (!items.length) return;
+    const h = document.createElement('div'); h.className='category-header'; h.textContent=cat.label; list.appendChild(h);
+    items.forEach(r => {
+      const c = document.createElement('div'); c.className='resto-card';
+      c.innerHTML = `<div class="resto-top"><div><div class="resto-name">${r.name}</div><div class="resto-type">${r.type}</div></div><span class="resto-score">⭐ ${r.score}</span></div>
+        <div class="resto-meta"><span class="resto-meta-item">📍 ${r.reach}</span><span class="resto-meta-item">💰 ${r.price}</span></div>
+        <div class="resto-desc">${r.desc}</div>
+        <div style="margin-top:10px"><a href="${r.maps}" target="_blank" class="btn-maps" style="width:auto;padding:8px 14px;font-size:0.78rem">📍 Maps</a></div>`;
+      list.appendChild(c);
+    });
+  });
+}
+
+// ═══════ INIT MAPS ═══════
+// Haus Tisch location (shown on all maps)
+const HAUS_TISCH = { lat: 47.0800, lng: 9.9200 };
+const redIcon = L.icon({
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
+});
+
+function createMap(containerId, markers, zoom) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  const map = L.map(el, { scrollWheelZoom: false, dragging: true, zoomControl: true });
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap', maxZoom: 17
+  }).addTo(map);
+  
+  const group = L.featureGroup();
+  markers.forEach(m => {
+    const marker = L.marker([m.lat, m.lng]).bindPopup(`<strong>${m.name}</strong><br>${m.desc}`);
+    group.addLayer(marker);
+  });
+  group.addTo(map);
+  
+  // Always add red Haus Tisch pin (separately, so it doesn't affect zoom bounds)
+  L.marker([HAUS_TISCH.lat, HAUS_TISCH.lng], { icon: redIcon })
+    .bindPopup('<strong>📍 Schruns</strong><br>Montafon, Vorarlberg')
+    .bindTooltip('Schruns', { permanent: true, direction: 'right', className: 'haus-tooltip', offset: [12, -20] })
+    .addTo(map);
+  
+  if (zoom) {
+    // Use explicit zoom when provided
+    const bounds = group.getBounds();
+    map.setView(bounds.getCenter(), zoom);
+  } else if (markers.length > 1) {
+    map.fitBounds(group.getBounds().pad(0.1));
+  } else {
+    map.setView([markers[0].lat, markers[0].lng], 14);
+  }
+  return map;
+}
+
+// ═══════ RENDER BERGEPLUS ═══════
+function renderBergePlus() {
+  const list = document.getElementById('bergeplusList');
+  list.innerHTML = '';
+  const days = ['Maandag','Dinsdag','Woensdag','Donderdag','Vrijdag','Zaterdag','Zondag'];
+  const dayEmojis = { Maandag:'📅', Dinsdag:'📅', Woensdag:'📅', Donderdag:'📅', Vrijdag:'📅', Zaterdag:'💤', Zondag:'💤' };
+  days.forEach(dag => {
+    const items = bergeplusData.filter(b => b.dag === dag);
+    if (items.length === 0) return;
+    const group = document.createElement('div');
+    group.className = 'bp-day-group';
+    group.innerHTML = `<div class="bp-day-header">${dayEmojis[dag]} ${dag}</div>`;
+    items.forEach(item => {
+      const isVrij = item.tijd === '-';
+      const card = document.createElement('div');
+      card.className = 'bp-card' + (isVrij ? '' : ' kind');
+      card.innerHTML = `
+        <div class="bp-card-header">
+          <div>
+            <div class="bp-card-title">${item.emoji} ${item.activiteit}</div>
+          </div>
+          ${!isVrij ? `<div class="bp-card-meta">🕐 ${item.tijd}</div>` : ''}
+        </div>
+        ${!isVrij ? `<div class="bp-card-summary">⏱️ ${item.duur} · 📍 ${item.locatie}</div>` : ''}
+        <div class="bp-details">
+          ${item.foto ? `<img src="${item.foto}" alt="${item.activiteit}" style="width:100%;border-radius:10px;margin-bottom:10px;aspect-ratio:16/9;object-fit:cover;object-position:center;">` : ''}
+          ${!isVrij ? `<div class="bp-detail-row"><span class="bp-label">📍</span><span class="bp-value">${item.locatie}</span></div>` : ''}
+          <div class="bp-detail-row"><span class="bp-label">🎒</span><span class="bp-value">${item.paklijst}</span></div>
+        </div>`;
+      card.addEventListener('click', () => card.classList.toggle('expanded'));
+      group.appendChild(card);
+    });
+    list.appendChild(group);
+  });
+}
+
+// ═══════ INIT ═══════
+renderActivities();
+renderErlebnis();
+renderBergePlus();
+renderRestaurants();
+// Only init the visible tab's map; others lazy-load on tab switch
+setTimeout(() => initMapForTab('activiteiten'), 200);
+
+// ═══════ RANDOM BUTTON ═══════
+const allOptions = [
+  ...activities.map(a => ({ emoji: a.emoji, name: a.name, desc: a.summary, maps: a.maps, type: 'activiteit' })),
+  ...erlebnisse.map(e => ({ emoji: e.emoji, name: e.name, desc: e.description.substring(0, 80) + '...', maps: null, type: 'wandeling' })),
+  ...restaurants.filter(r => r.cat !== 'drink').map(r => ({ emoji: '🍽️', name: r.name, desc: r.desc, maps: r.maps, type: 'restaurant' }))
+];
+document.getElementById('randomBtn').addEventListener('click', () => {
+  const pick = allOptions[Math.floor(Math.random() * allOptions.length)];
+  // Remove existing popup if any
+  document.querySelectorAll('.random-overlay,.random-result-popup').forEach(e => e.remove());
+  // Create overlay
+  const overlay = document.createElement('div');
+  overlay.className = 'random-overlay';
+  document.body.appendChild(overlay);
+  // Create popup
+  const popup = document.createElement('div');
+  popup.className = 'random-result-popup';
+  popup.innerHTML = `
+    <button class="random-close">✕</button>
+    <div class="random-emoji">${pick.emoji}</div>
+    <div class="random-name">${pick.name}</div>
+    <div class="random-desc">${pick.desc}</div>
+    <div class="random-type">${pick.type}</div>
+    ${pick.maps ? `<a href="${pick.maps}" target="_blank" class="random-link">📍 Bekijk op Maps</a>` : ''}
+  `;
+  document.body.appendChild(popup);
+  // Close handlers
+  const close = () => { overlay.remove(); popup.remove(); };
+  overlay.addEventListener('click', close);
+  popup.querySelector('.random-close').addEventListener('click', close);
+});
+
+// ═══════ AUTO BINGO ═══════
+const bingoPool = [
+  {e:'🐄',l:'Koe'},{e:'🏔️',l:'Sneeuwberg'},{e:'⛪',l:'Kerkje'},{e:'🚜',l:'Tractor'},{e:'🌈',l:'Regenboog'},
+  {e:'🚐',l:'Camper'},{e:'🌻',l:'Zonnebloem'},{e:'🐴',l:'Paard'},{e:'⛽',l:'Tankstation'},{e:'🚂',l:'Trein'},
+  {e:'🏰',l:'Kasteel'},{e:'🌊',l:'Waterval'},{e:'🐑',l:'Schaap'},{e:'🚲',l:'Fietser'},{e:'🌲',l:'Dennenbos'},
+  {e:'🦅',l:'Roofvogel'},{e:'🚁',l:'Helikopter'},{e:'🏗️',l:'Bouwkraan'},{e:'🐐',l:'Geit'},{e:'🚇',l:'Tunnel'},
+  {e:'🏠',l:'Houten huis'},{e:'🚛',l:'Vrachtwagen'},{e:'🐕',l:'Hond'},{e:'🎿',l:'Skilift'},{e:'🌧️',l:'Regen'},
+  {e:'🐔',l:'Kip'},{e:'🚌',l:'Bus'},{e:'🌽',l:'Maïsveld'},{e:'🐈',l:'Kat'},{e:'🚓',l:'Politieauto'},
+  {e:'🚒',l:'Brandweer'},{e:'🚑',l:'Ambulance'},{e:'✈️',l:'Vliegtuig'},{e:'🏍️',l:'Motor'},{e:'🛵',l:'Scooter'},
+  {e:'🚗',l:'Rode auto'},{e:'🚙',l:'Blauwe auto'},{e:'🦆',l:'Eend'},{e:'🐦',l:'Vogel op draad'},{e:'🐇',l:'Konijn'},
+  {e:'🦋',l:'Vlinder'},{e:'🐝',l:'Bij/wesp'},{e:'🌺',l:'Rode bloem'},{e:'🍎',l:'Appelboom'},{e:'🪵',l:'Houtstapel'},
+  {e:'⛲',l:'Fontein'},{e:'🏊',l:'Zwembad'},{e:'🎡',l:'Reuzenrad'},{e:'🎢',l:'Achtbaan'},{e:'🎪',l:'Tent/markt'},
+  {e:'🗼',l:'Toren'},{e:'🌉',l:'Brug'},{e:'⚓',l:'Boot'},{e:'🚤',l:'Speedboot'},{e:'🛶',l:'Kano'},
+  {e:'🧑‍🌾',l:'Boer'},{e:'👷',l:'Bouwvakker'},{e:'🧑‍🚒',l:'Brandweerman'},{e:'🏖️',l:'Strandstoelen'},{e:'⛺',l:'Tent'},
+  {e:'🌄',l:'Zonsondergang'},{e:'🌙',l:'Maan'},{e:'⭐',l:'Ster(ren)'},{e:'☁️',l:'Grote wolk'},{e:'🌤️',l:'Zon + wolk'},
+  {e:'❄️',l:'Sneeuw'},{e:'💨',l:'Harde wind'},{e:'🌪️',l:'Windmolen'},{e:'🔔',l:'Kerklok'},{e:'🚧',l:'Wegwerk'},
+  {e:'🛑',l:'Stopbord'},{e:'🚦',l:'Stoplicht'},{e:'⬆️',l:'Eenrichtingsweg'},{e:'🅿️',l:'Parkeergarage'},{e:'🏪',l:'Winkeltje'},
+  {e:'🍦',l:'IJskar'},{e:'☕',l:'Koffiebar'},{e:'🍺',l:'Biergarten'},{e:'🏥',l:'Ziekenhuis'},{e:'📮',l:'Brievenbus'},
+  {e:'📡',l:'Schotelantenne'},{e:'🗑️',l:'Vuilniswagen'},{e:'🚃',l:'Kabelbaan'},{e:'🪨',l:'Grote rots'},{e:'🐿️',l:'Eekhoorn'},
+  {e:'🦌',l:'Hert/ree'},{e:'🐟',l:'Vis'},{e:'🦢',l:'Zwaan'},{e:'🦆',l:'Eenden'},{e:'🐸',l:'Kikker'},
+  {e:'🪺',l:'Vogelnest'},{e:'🍄',l:'Paddenstoel'},{e:'🫐',l:'Bessen'},{e:'🌾',l:'Graanveld'},{e:'🥬',l:'Moestuin'},
+  {e:'🧺',l:'Waslijn'},{e:'🪜',l:'Ladder'},{e:'🧱',l:'Bakstenen muur'},{e:'🪟',l:'Dakraam'},{e:'🏚️',l:'Oud gebouw'},
+  {e:'⛰️',l:'Rotswand'},{e:'🏞️',l:'Meer/meertje'},{e:'🛤️',l:'Spoorrails'},{e:'🛣️',l:'Snelweg'},{e:'🛫',l:'Vliegveld'},
+  {e:'🚡',l:'Gondel'},{e:'⛷️',l:'Skiër'},{e:'🏂',l:'Snowboarder'},{e:'🧗',l:'Klimmer'},{e:'🚵',l:'Mountainbiker'},
+  {e:'🐓',l:'Haan'},{e:'🦃',l:'Kalkoen'},{e:'🐎',l:'Ruiter'},{e:'🐛',l:'Rups'},{e:'🦎',l:'Hagedis'},
+  {e:'🪁',l:'Vlieger'},{e:'🎈',l:'Ballon'},{e:'🎣',l:'Visser'},{e:'🪴',l:'Plant in pot'},{e:'🏵️',l:'Gele bloem'},
+  {e:'🚿',l:'Sproeier'},{e:'🪣',l:'Emmer'},{e:'🧹',l:'Bezem'},{e:'🪑',l:'Bankje'},{e:'🧸',l:'Knuffel'},
+  {e:'📻',l:'Radio'},{e:'🎵',l:'Muziek horen'},{e:'🔔',l:'Bel/gong'},{e:'🎺',l:'Muzikant'},{e:'🗻',l:'Bergtop'},
+  {e:'🏕️',l:'Kampeerder'},{e:'🍕',l:'Pizzeria'},{e:'🍔',l:'Snackbar'},{e:'🌭',l:'Würstlstand'},{e:'🥨',l:'Bretzel'},
+  {e:'🍺',l:'Biervat'},{e:'🧀',l:'Kaaswinkel'},{e:'🎭',l:'Theater'},{e:'📸',l:'Toerist met camera'},{e:'🗺️',l:'Kaart lezen'},
+  {e:'🧳',l:'Koffer'},{e:'🎒',l:'Rugzak'},{e:'👨‍👩‍👧‍👦',l:'Gezin'},{e:'🐕‍🦺',l:'Hond uitlaten'},{e:'🛷',l:'Slee'},
+  {e:'🪵',l:'Boomstam'},{e:'🍁',l:'Rood blad'},{e:'🌿',l:'Klimop'},{e:'🌵',l:'Cactus'},{e:'🪻',l:'Lavendel'},
+  {e:'🐌',l:'Slak'},{e:'🕷️',l:'Spinnenweb'},{e:'🐞',l:'Lieveheersbeestje'},{e:'🦗',l:'Krekel'},{e:'🐜',l:'Mier'},
+  {e:'🏋️',l:'Fitnesstoestel'},{e:'⚽',l:'Voetbalveld'},{e:'🎾',l:'Tennisbaan'},{e:'🏀',l:'Basketbalring'},{e:'⛳',l:'Golfvlag'},
+  {e:'🛝',l:'Glijbaan'},{e:'🎠',l:'Draaimolen'},{e:'🧗‍♂️',l:'Klimwand'},{e:'🏇',l:'Paardenwei'},{e:'🐾',l:'Dierenspoor'}
+];
+
+const BINGO_KEY = 'montafon_bingo';
+let bingoData = JSON.parse(localStorage.getItem(BINGO_KEY) || 'null');
+
+function shuffleAndPick() {
+  const shuffled = [...bingoPool].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, 25);
+}
+
+function newBingoCard() {
+  bingoData = { items: shuffleAndPick(), checked: [] };
+  localStorage.setItem(BINGO_KEY, JSON.stringify(bingoData));
+}
+
+if (!bingoData || !bingoData.items) newBingoCard();
+
+function renderBingo() {
+  const grid = document.getElementById('bingoGrid');
+  grid.innerHTML = '';
+  bingoData.items.forEach((item, i) => {
+    const cell = document.createElement('div');
+    cell.className = 'bingo-cell' + (bingoData.checked.includes(i) ? ' checked' : '');
+    cell.innerHTML = `<span class="bingo-emoji">${item.e}</span><span class="bingo-label">${item.l}</span>`;
+    cell.addEventListener('click', () => {
+      if (bingoData.checked.includes(i)) {
+        bingoData.checked = bingoData.checked.filter(x => x !== i);
+      } else {
+        bingoData.checked.push(i);
+      }
+      localStorage.setItem(BINGO_KEY, JSON.stringify(bingoData));
+      cell.classList.toggle('checked');
+    });
+    grid.appendChild(cell);
+  });
+}
+
+document.getElementById('bingoBtn').addEventListener('click', () => {
+  renderBingo();
+  document.getElementById('bingoModal').classList.add('active');
+});
+document.getElementById('bingoClose').addEventListener('click', () => {
+  document.getElementById('bingoModal').classList.remove('active');
+});
+document.getElementById('bingoModal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) document.getElementById('bingoModal').classList.remove('active');
+});
+document.getElementById('bingoReset').addEventListener('click', () => {
+  if (confirm('Nieuwe kaart maken? (Je krijgt andere items!)')) {
+    newBingoCard();
+    renderBingo();
+  }
+});
+
+// ═══════ WEATHER WIDGET ═══════
+const weatherIcons = { 0:'☀️', 1:'🌤️', 2:'⛅', 3:'☁️', 45:'🌫️', 48:'🌫️', 51:'🌦️', 53:'🌧️', 55:'🌧️', 61:'🌧️', 63:'🌧️', 65:'🌧️', 71:'🌨️', 73:'🌨️', 75:'❄️', 80:'🌦️', 81:'🌧️', 82:'⛈️', 95:'⛈️' };
+function getWeatherIcon(code) { return weatherIcons[code] || '🌤️'; }
+
+async function fetchWeather() {
+  try {
+    // Dal: Schruns ~700m
+    const dalUrl = 'https://api.open-meteo.com/v1/forecast?latitude=47.08&longitude=9.92&current=temperature_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,weather_code&timezone=Europe/Vienna&forecast_days=8';
+    // Berg: Hochjoch ~2000m
+    const bergUrl = 'https://api.open-meteo.com/v1/forecast?latitude=47.04&longitude=9.93&elevation=2000&current=temperature_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,weather_code&timezone=Europe/Vienna&forecast_days=8';
+    
+    const [dalRes, bergRes] = await Promise.all([fetch(dalUrl), fetch(bergUrl)]);
+    const dal = await dalRes.json();
+    const berg = await bergRes.json();
+    
+    const days = ['Zo','Ma','Di','Wo','Do','Vr','Za'];
+    
+    let html = `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+        <div style="background:var(--cp-surface-soft);border-radius:12px;padding:14px;text-align:center;border:1px solid var(--cp-border);">
+          <div style="font-size:0.72rem;font-weight:700;color:var(--cp-text-muted);text-transform:uppercase;letter-spacing:0.5px;">🏘️ Dal (~700m)</div>
+          <div style="font-size:2.2rem;margin:6px 0;">${getWeatherIcon(dal.current.weather_code)}</div>
+          <div style="font-size:1.4rem;font-weight:900;color:var(--cp-text);">${Math.round(dal.current.temperature_2m)}°C</div>
+          <div style="font-size:0.72rem;color:var(--cp-text-muted);margin-top:4px;">Wind: ${Math.round(dal.current.wind_speed_10m)} km/h</div>
+        </div>
+        <div style="background:var(--cp-surface-soft);border-radius:12px;padding:14px;text-align:center;border:1px solid var(--cp-border);">
+          <div style="font-size:0.72rem;font-weight:700;color:var(--cp-text-muted);text-transform:uppercase;letter-spacing:0.5px;">⛰️ Berg (~2000m)</div>
+          <div style="font-size:2.2rem;margin:6px 0;">${getWeatherIcon(berg.current.weather_code)}</div>
+          <div style="font-size:1.4rem;font-weight:900;color:var(--cp-text);">${Math.round(berg.current.temperature_2m)}°C</div>
+          <div style="font-size:0.72rem;color:var(--cp-text-muted);margin-top:4px;">Wind: ${Math.round(berg.current.wind_speed_10m)} km/h</div>
+        </div>
+      </div>
+      <div style="font-size:0.75rem;font-weight:700;color:var(--cp-text-muted);margin-bottom:8px;">KOMENDE 7 DAGEN (dal)</div>
+      <div style="display:flex;gap:8px;overflow-x:auto;">
+    `;
+    
+    for (let i = 1; i < dal.daily.time.length; i++) {
+      const date = new Date(dal.daily.time[i]);
+      const day = days[date.getDay()];
+      html += `<div style="min-width:70px;text-align:center;background:var(--cp-surface-soft);border-radius:10px;padding:10px 8px;border:1px solid var(--cp-border);flex-shrink:0;">
+        <div style="font-size:0.7rem;font-weight:700;color:var(--cp-text-muted);">${day} ${date.getDate()}/${date.getMonth()+1}</div>
+        <div style="font-size:1.4rem;margin:4px 0;">${getWeatherIcon(dal.daily.weather_code[i])}</div>
+        <div style="font-size:0.75rem;font-weight:700;color:var(--cp-text);">${Math.round(dal.daily.temperature_2m_max[i])}° / ${Math.round(dal.daily.temperature_2m_min[i])}°</div>
+      </div>`;
+    }
+    html += '</div>';
+    
+    document.getElementById('weatherContent').innerHTML = html;
+  } catch(e) {
+    document.getElementById('weatherContent').innerHTML = '<div style="color:var(--cp-text-muted)">⚠️ Weer kon niet worden geladen. Check je internetverbinding.<br><br><a href="https://www.bergfex.at/sommer/schruns-tschagguns/wetter/" target="_blank" style="color:var(--cp-link);font-weight:700">→ Bekijk weer op Bergfex</a></div>';
+  }
+}
+fetchWeather();
+
+// ═══════ SERVICE WORKER REGISTRATION ═══════
+if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  navigator.serviceWorker.register('sw.js').then(() => console.log('SW registered')).catch(() => {});
+}
+</script>
+</body>
+</html>

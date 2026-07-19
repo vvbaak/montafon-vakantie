@@ -187,6 +187,10 @@ html[data-theme="dark"] .indoor-badge { background:#1e3a5f; color:#93c5fd; }
 .event-info { flex:1; min-width:0; }
 .event-name { font-size:0.82rem; font-weight:700; color:var(--cp-text); }
 .event-meta { font-size:0.72rem; color:var(--cp-text-muted); margin-top:2px; }
+.notes-section { padding:16px 20px; }
+.notes-label { font-size:0.8rem; font-weight:700; color:var(--cp-text-muted); margin-bottom:6px; }
+.notes-area { width:100%; min-height:80px; border:1px solid var(--cp-border); border-radius:12px; padding:10px 14px; font-family:'Nunito',sans-serif; font-size:0.82rem; color:var(--cp-text); background:var(--cp-surface); resize:vertical; outline:none; transition:border-color 0.2s; box-sizing:border-box; }
+.notes-area:focus { border-color:var(--cp-accent); }
 
 .carousel-wrap { margin: 14px -16px 14px; overflow-x: auto; scroll-snap-type: x mandatory; display: flex; gap: 10px; padding: 0 16px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
 .carousel-wrap::-webkit-scrollbar { display: none; }
@@ -414,6 +418,7 @@ html[data-theme="dark"] .indoor-badge { background:#1e3a5f; color:#93c5fd; }
     <div class="map-label">🗺️ Kaart: alle activiteiten</div>
     <div class="map-wrap" id="mapActiviteiten"></div>
   </div>
+  <div class="notes-section"><div class="notes-label">📝 Notities</div><textarea class="notes-area" data-notes="activiteiten" placeholder="Typ hier je notities..."></textarea></div>
 </div>
 
 <!-- TAB: ERLEBNIS -->
@@ -441,6 +446,7 @@ html[data-theme="dark"] .indoor-badge { background:#1e3a5f; color:#93c5fd; }
     <div class="map-label">🗺️ Kaart: wandelingen & Erlebniswege</div>
     <div class="map-wrap" id="mapErlebnis"></div>
   </div>
+  <div class="notes-section"><div class="notes-label">📝 Notities</div><textarea class="notes-area" data-notes="erlebnis" placeholder="Typ hier je notities..."></textarea></div>
 </div>
 
 <!-- TAB: RESTAURANTS -->
@@ -451,6 +457,7 @@ html[data-theme="dark"] .indoor-badge { background:#1e3a5f; color:#93c5fd; }
     <div class="map-label">🗺️ Kaart: restaurants & ijszaken</div>
     <div class="map-wrap" id="mapRestaurants"></div>
   </div>
+  <div class="notes-section"><div class="notes-label">📝 Notities</div><textarea class="notes-area" data-notes="restaurants" placeholder="Typ hier je notities..."></textarea></div>
 </div>
 
 <!-- TAB: INFO -->
@@ -463,6 +470,7 @@ html[data-theme="dark"] .indoor-badge { background:#1e3a5f; color:#93c5fd; }
     <div class="map-label">🗺️ Kaart: BergePLUS locaties</div>
     <div class="map-wrap" id="mapBergeplus"></div>
   </div>
+  <div class="notes-section"><div class="notes-label">📝 Notities</div><textarea class="notes-area" data-notes="bergeplus" placeholder="Typ hier je notities..."></textarea></div>
 </div>
 
 <div class="section" id="sec-info">
@@ -510,6 +518,7 @@ html[data-theme="dark"] .indoor-badge { background:#1e3a5f; color:#93c5fd; }
     <div class="map-label">🗺️ Kaart: laadpalen & verblijf</div>
     <div class="map-wrap" id="mapInfo"></div>
   </div>
+  <div class="notes-section"><div class="notes-label">📝 Notities</div><textarea class="notes-area" data-notes="info" placeholder="Typ hier je notities..."></textarea></div>
 </div>
 
 <!-- EASTER EGG -->
@@ -1105,6 +1114,13 @@ renderBergePlus();
 renderRestaurants();
 // Only init the visible tab's map; others lazy-load on tab switch
 setTimeout(() => initMapForTab('activiteiten'), 200);
+
+// ═══════ NOTES PERSISTENCE ═══════
+document.querySelectorAll('.notes-area').forEach(ta => {
+  const key = 'montafon_notes_' + ta.dataset.notes;
+  ta.value = localStorage.getItem(key) || '';
+  ta.addEventListener('input', () => localStorage.setItem(key, ta.value));
+});
 
 // ═══════ RANDOM BUTTON ═══════
 const allOptions = [

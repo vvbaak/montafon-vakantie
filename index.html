@@ -175,6 +175,11 @@ body {
 .btn-maps:hover { background: var(--cp-accent-hover); }
 .sub-activities { display:flex; flex-wrap:wrap; gap:6px; margin:10px 0; }
 .sub-chip { background:var(--cp-accent-soft); color:var(--cp-accent); font-size:0.78rem; font-weight:600; padding:5px 10px; border-radius:20px; white-space:nowrap; }
+.filter-bar { display:flex; gap:8px; padding:0 20px 10px; }
+.filter-btn { background:var(--cp-surface); border:1px solid var(--cp-border); border-radius:20px; padding:6px 14px; font-size:0.8rem; font-weight:700; font-family:inherit; cursor:pointer; color:var(--cp-text-muted); transition:all 0.2s; }
+.filter-btn.active { background:var(--cp-accent); color:var(--cp-accent-fg); border-color:var(--cp-accent); }
+.indoor-badge { display:inline-block; background:#dbeafe; color:#1d4ed8; font-size:0.65rem; font-weight:700; padding:2px 6px; border-radius:6px; margin-left:6px; vertical-align:middle; }
+html[data-theme="dark"] .indoor-badge { background:#1e3a5f; color:#93c5fd; }
 
 .carousel-wrap { margin: 14px -16px 14px; overflow-x: auto; scroll-snap-type: x mandatory; display: flex; gap: 10px; padding: 0 16px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
 .carousel-wrap::-webkit-scrollbar { display: none; }
@@ -393,6 +398,9 @@ body {
 <!-- TAB: ACTIVITEITEN -->
 <div class="section active" id="sec-activiteiten">
   <div class="section-title">🎯 Activiteiten & Dagtrips</div>
+  <div class="filter-bar">
+    <button class="filter-btn" id="filterBadWeather">🌧️ Slecht weer</button>
+  </div>
   <div id="randomResult" style="display:none;"></div>
   <div id="activityList"></div>
   <div class="map-section">
@@ -648,11 +656,11 @@ const bergeplusMarkers = bergeplusData.filter(b => b.lat !== null).map(b => ({
 const activities = [
   { id:'vaduz', name:'Vaduz Castle (Liechtenstein)', emoji:'🏰', summary:'Historisch kasteel, wandeling & uitzicht – gratis!', description:'Historisch kasteel van buitenaf te bewonderen. Wandeling en toegang gratis. Prachtig uitzicht over Vaduz en de Rijn.', priceAdult:'€ 0', priceKid:'€ 0', priceFamily:'€ 0', priceFamilyWP:'€ 0', wildpass:false, score:'⭐ 4.2 (526 reviews)', drive:'~40 min.', maps:'https://www.google.com/maps/search/Vaduz+Castle+Liechtenstein' },
   { id:'golm', name:'Bewegungsberg Golm', emoji:'🎢', summary:'Klimbos, Alpine Coaster & berglift – ultiem avontuur!', description:'Met WildPass vervallen liftkosten (€107). Je betaalt dan nog Klimbos (€140,60) en Alpine Coaster (€59,40).', priceAdult:'-', priceKid:'-', priceFamily:'ca. € 250', priceFamilyWP:'ca. € 200', wildpass:true, lift:'€ 107 (gratis met WildPass)', score:'', drive:'~10 min.', maps:'https://www.google.com/maps/search/Bewegungsberg+Golm+Tschagguns', subs:["🔍 Golmi's Forschungspfad","🛝 Waldrutschenpark","🎢 Alpine-Coaster","🪂 Ziplinen","🧗 Waldseilpark-Golm"] },
-  { id:'alpenbad', name:'Alpenbad Montafon', emoji:'🏊', summary:'Grootste openluchtzwembad met glijbanen – gratis met WP!', description:'Grootste openluchtzwembad van de regio met glijbanen. Volledig gratis met de WildPass.', priceAdult:'€ 7,20', priceKid:'€ 4,80', priceFamily:'ca. € 24', priceFamilyWP:'€ 0 (gratis!)', wildpass:true, score:'', drive:'~5 min.', maps:'https://www.google.com/maps/search/Alpenbad+Montafon+Schruns' },
-  { id:'aktivpark', name:'Aktivpark Montafon', emoji:'🏕️', summary:'Ecologisch zwemmeer & speeltent – gratis met WP!', description:'Ecologisch zwemmeer en overdekte speeltent in Tschagguns. Volledig gratis met WildPass.', priceAdult:'€ 7,20', priceKid:'€ 4,80', priceFamily:'ca. € 24', priceFamilyWP:'€ 0 (gratis!)', wildpass:true, score:'', drive:'~5 min.', maps:'https://www.google.com/maps/search/Aktivpark+Montafon+Tschagguns' },
+  { id:'alpenbad', name:'Alpenbad Montafon', emoji:'🏊', summary:'Grootste openluchtzwembad met glijbanen – gratis met WP!', description:'Grootste openluchtzwembad van de regio met glijbanen. Volledig gratis met de WildPass.', priceAdult:'€ 7,20', priceKid:'€ 4,80', priceFamily:'ca. € 24', priceFamilyWP:'€ 0 (gratis!)', wildpass:true, score:'', drive:'~5 min.', maps:'https://www.google.com/maps/search/Alpenbad+Montafon+Schruns', indoor:true },
+  { id:'aktivpark', name:'Aktivpark Montafon', emoji:'🏕️', summary:'Ecologisch zwemmeer & speeltent – gratis met WP!', description:'Ecologisch zwemmeer en overdekte speeltent in Tschagguns. Volledig gratis met WildPass.', priceAdult:'€ 7,20', priceKid:'€ 4,80', priceFamily:'ca. € 24', priceFamilyWP:'€ 0 (gratis!)', wildpass:true, score:'', drive:'~5 min.', maps:'https://www.google.com/maps/search/Aktivpark+Montafon+Tschagguns', indoor:true },
   { id:'barenland', name:'Bärenland Sonnenkopf', emoji:'🐻', summary:'Berenspeelpark – berglift gratis met WildPass!', description:'Park is gratis. Met WildPass is de berglift ook gedekt. Geweldig themapark op de berg!', priceAdult:'€ 25', priceKid:'€ 13,50', priceFamily:'€ 77', priceFamilyWP:'€ 0 (gratis!)', wildpass:true, score:'', drive:'~30 min.', maps:'https://www.google.com/maps/search/Bärenland+Sonnenkopf+Klostertal' },
   { id:'mountainkart', name:'Mountainkarten Gargellen', emoji:'🏎️', summary:'Stoere driewielers over brede bergwegen!', description:'Grote stoere driewielers over een brede bergweg. Niet in WildPass, vaste prijs per kart.', priceAdult:'€ 20', priceKid:'€ 20', priceFamily:'€ 80', priceFamilyWP:'€ 80', wildpass:false, score:'', drive:'~25 min.', maps:'https://www.google.com/maps/search/Mountainkart+Gargellen' },
-  { id:'inatura', name:'Inatura Science Center', emoji:'🔬', summary:'Interactief museum – perfect voor een regendag!', description:'Interactief museum in Dornbirn vol proefjes en opgezette dieren.', priceAdult:'€ 14', priceKid:'€ 6,90', priceFamily:'€ 32,20', priceFamilyWP:'€ 32,20', wildpass:false, score:'', drive:'~50 min.', maps:'https://www.google.com/maps/search/Inatura+Science+Center+Dornbirn' },
+  { id:'inatura', name:'Inatura Science Center', emoji:'🔬', summary:'Interactief museum – perfect voor een regendag!', description:'Interactief museum in Dornbirn vol proefjes en opgezette dieren.', priceAdult:'€ 14', priceKid:'€ 6,90', priceFamily:'€ 32,20', priceFamilyWP:'€ 32,20', wildpass:false, score:'', drive:'~50 min.', maps:'https://www.google.com/maps/search/Inatura+Science+Center+Dornbirn', indoor:true },
   { id:'lindau', name:'Dagtrip Lindau & Bodensee', emoji:'⛵', summary:'Historische straatjes, vuurtoren & boottocht.', description:'Eiland Lindau aan de Bodensee. Vuurtoren, straatjes, optionele boottocht.', priceAdult:'ca. € 16,50', priceKid:'ca. € 10', priceFamily:'ca. € 46', priceFamilyWP:'ca. € 46', wildpass:false, score:'', drive:'~1 uur', maps:'https://www.google.com/maps/search/Lindau+Insel+Bodensee' },
   { id:'santis', name:'Dagtrip Säntis & Appenzell', emoji:'🇨🇭', summary:'Zweefbaan naar 2502m – uitzicht over 6 landen!', description:'Zweefbaan naar Säntis in Zwitserland. Spectaculair uitzicht! Buiten WildPass.', priceAdult:'ca. € 61,50', priceKid:'ca. € 30,80', priceFamily:'ca. € 170', priceFamilyWP:'ca. € 170', wildpass:false, score:'', drive:'~1u 25 min.', maps:'https://www.google.com/maps/search/Säntis+Schwebebahn' },
   { id:'mountainbeach', name:'Mountain Beach Gaschurn', emoji:'🏖️', summary:'Freizeitpark met zwemmeren, glijbanen & strand – gratis met WP!', description:'Freizeitpark met twee zwemmeren (6.300 m²), zandstrand, raftingstrecke, kletterpyramide, Air Bubble, hangbrug, waterspeeltoestellen en speeltuin. Open dagelijks 09:00–19:00 (mei–aug). Gastronomie (Beacheria) vrij toegankelijk.', priceAdult:'€ 7', priceKid:'€ 5', priceFamily:'ca. € 24', priceFamilyWP:'€ 0 (gratis!)', wildpass:true, score:'', drive:'~15 min.', maps:'https://www.google.com/maps/search/Mountain+Beach+Gaschurn', subs:['🏊 Zwemmeren','🛟 Raftingstrecke','🏖️ Zandstrand','🧗 Kletterpyramide','🛝 Wasserrutschen','🏐 Beachvolleybal'] }
@@ -854,10 +862,13 @@ function updateProgress() {
   document.getElementById('progressFill').style.width = (done / total * 100) + '%';
   document.getElementById('progressWrap').style.display = 'block';
 }
+let filterIndoor = false;
+
 function renderActivities() {
   const list = document.getElementById('activityList');
   list.innerHTML = '';
-  activities.forEach(a => {
+  const filtered = filterIndoor ? activities.filter(a => a.indoor) : activities;
+  filtered.forEach(a => {
     const checked = state[a.id] ? 'checked' : '';
     const isFree = a.priceFamilyWP.includes('gratis') || (a.priceFamilyWP === '€ 0');
     const photoArr = photos[a.id] || [];
@@ -866,7 +877,7 @@ function renderActivities() {
     card.innerHTML = `
       <div class="activity-header">
         <div class="activity-checkbox" data-id="${a.id}">${state[a.id]?'✓':''}</div>
-        <div class="activity-info"><div class="activity-name">${a.emoji} ${a.name}</div><div class="activity-summary">${a.drive ? '🚗 '+a.drive+' · ' : ''}${a.summary}</div></div>
+        <div class="activity-info"><div class="activity-name">${a.emoji} ${a.name}${a.indoor?'<span class="indoor-badge">INDOOR</span>':''}</div><div class="activity-summary">${a.drive ? '🚗 '+a.drive+' · ' : ''}${a.summary}</div></div>
         <span class="activity-price-badge ${isFree?'free':''}">${isFree?'GRATIS*':a.priceFamilyWP}</span>
         <button class="activity-expand-btn">▼</button>
       </div>
@@ -1071,6 +1082,11 @@ function renderBergePlus() {
 
 // ═══════ INIT ═══════
 renderActivities();
+document.getElementById('filterBadWeather').addEventListener('click', function() {
+  filterIndoor = !filterIndoor;
+  this.classList.toggle('active', filterIndoor);
+  renderActivities();
+});
 renderErlebnis();
 renderBergePlus();
 renderRestaurants();

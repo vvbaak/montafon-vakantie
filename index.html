@@ -173,6 +173,8 @@ body {
 .detail-item .value.free-val { color: var(--v-green); }
 .btn-maps { display: inline-flex; align-items: center; gap: 6px; background: var(--cp-accent); color: var(--cp-accent-fg); padding: 10px 18px; border-radius: 12px; text-decoration: none; font-size: 0.82rem; font-weight: 700; font-family: inherit; border: none; cursor: pointer; justify-content: center; transition: background 0.2s; }
 .btn-maps:hover { background: var(--cp-accent-hover); }
+.sub-activities { display:flex; flex-wrap:wrap; gap:6px; margin:10px 0; }
+.sub-chip { background:var(--cp-accent-soft); color:var(--cp-accent); font-size:0.78rem; font-weight:600; padding:5px 10px; border-radius:20px; white-space:nowrap; }
 
 .carousel-wrap { margin: 14px -16px 14px; overflow-x: auto; scroll-snap-type: x mandatory; display: flex; gap: 10px; padding: 0 16px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
 .carousel-wrap::-webkit-scrollbar { display: none; }
@@ -628,7 +630,7 @@ const bergeplusMarkers = bergeplusData.filter(b => b.lat !== null).map(b => ({
 // ═══════ DATA ═══════
 const activities = [
   { id:'vaduz', name:'Vaduz Castle (Liechtenstein)', emoji:'🏰', summary:'Historisch kasteel, wandeling & uitzicht – gratis!', description:'Historisch kasteel van buitenaf te bewonderen. Wandeling en toegang gratis. Prachtig uitzicht over Vaduz en de Rijn.', priceAdult:'€ 0', priceKid:'€ 0', priceFamily:'€ 0', priceFamilyWP:'€ 0', wildpass:false, score:'⭐ 4.2 (526 reviews)', drive:'~40 min.', maps:'https://www.google.com/maps/search/Vaduz+Castle+Liechtenstein' },
-  { id:'golm', name:'Bewegungsberg Golm', emoji:'🎢', summary:'Klimbos, Alpine Coaster & berglift – ultiem avontuur!', description:'Met WildPass vervallen liftkosten (€107). Je betaalt dan nog Klimbos (€140,60) en Alpine Coaster (€59,40).', priceAdult:'-', priceKid:'-', priceFamily:'ca. € 250', priceFamilyWP:'ca. € 200', wildpass:true, lift:'€ 107 (gratis met WildPass)', score:'', drive:'~10 min.', maps:'https://www.google.com/maps/search/Bewegungsberg+Golm+Tschagguns' },
+  { id:'golm', name:'Bewegungsberg Golm', emoji:'🎢', summary:'Klimbos, Alpine Coaster & berglift – ultiem avontuur!', description:'Met WildPass vervallen liftkosten (€107). Je betaalt dan nog Klimbos (€140,60) en Alpine Coaster (€59,40).', priceAdult:'-', priceKid:'-', priceFamily:'ca. € 250', priceFamilyWP:'ca. € 200', wildpass:true, lift:'€ 107 (gratis met WildPass)', score:'', drive:'~10 min.', maps:'https://www.google.com/maps/search/Bewegungsberg+Golm+Tschagguns', subs:["🔍 Golmi's Forschungspfad","🛝 Waldrutschenpark","🎢 Alpine-Coaster","🪂 Ziplinen","🧗 Waldseilpark-Golm"] },
   { id:'alpenbad', name:'Alpenbad Montafon', emoji:'🏊', summary:'Grootste openluchtzwembad met glijbanen – gratis met WP!', description:'Grootste openluchtzwembad van de regio met glijbanen. Volledig gratis met de WildPass.', priceAdult:'€ 7,20', priceKid:'€ 4,80', priceFamily:'ca. € 24', priceFamilyWP:'€ 0 (gratis!)', wildpass:true, score:'', drive:'~5 min.', maps:'https://www.google.com/maps/search/Alpenbad+Montafon+Schruns' },
   { id:'aktivpark', name:'Aktivpark Montafon', emoji:'🏕️', summary:'Ecologisch zwemmeer & speeltent – gratis met WP!', description:'Ecologisch zwemmeer en overdekte speeltent in Tschagguns. Volledig gratis met WildPass.', priceAdult:'€ 7,20', priceKid:'€ 4,80', priceFamily:'ca. € 24', priceFamilyWP:'€ 0 (gratis!)', wildpass:true, score:'', drive:'~5 min.', maps:'https://www.google.com/maps/search/Aktivpark+Montafon+Tschagguns' },
   { id:'barenland', name:'Bärenland Sonnenkopf', emoji:'🐻', summary:'Berenspeelpark – berglift gratis met WildPass!', description:'Park is gratis. Met WildPass is de berglift ook gedekt. Geweldig themapark op de berg!', priceAdult:'€ 25', priceKid:'€ 13,50', priceFamily:'€ 77', priceFamilyWP:'€ 0 (gratis!)', wildpass:true, score:'', drive:'~30 min.', maps:'https://www.google.com/maps/search/Bärenland+Sonnenkopf+Klostertal' },
@@ -863,6 +865,7 @@ function renderActivities() {
           ${a.drive?`<div class="detail-item" style="grid-column:span 2"><div class="label">🚗 Rijden vanaf verblijf</div><div class="value">${a.drive}</div></div>`:''}
         </div>
         ${a.score?`<div style="font-size:0.82rem;color:var(--cp-text-muted);margin-bottom:12px">${a.score}</div>`:''}
+        ${a.subs?`<div class="sub-activities">${a.subs.map(s=>`<span class="sub-chip">${s}</span>`).join('')}</div>`:''}
         <a href="${a.maps}" target="_blank" class="btn-maps" style="width:100%">📍 Open in Google Maps</a>
       </div></div>`;
     list.appendChild(card);

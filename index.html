@@ -244,6 +244,8 @@ body {
 .leaflet-popup-content a { color: var(--cp-accent); font-weight: 700; text-decoration: none; }
 .haus-tooltip { font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 0.72rem; background: #dc2626; color: #fff; border: none; border-radius: 6px; padding: 2px 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
 .haus-tooltip::before { border-right-color: #dc2626 !important; }
+.marker-label { font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 0.68rem; background: var(--cp-surface); color: var(--cp-text); border: 1px solid var(--cp-border); border-radius: 5px; padding: 1px 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.15); }
+.marker-label::before { border-right-color: var(--cp-border) !important; }
 
 /* ─── EASTER EGG MODAL ─── */
 .modal-overlay { position: fixed; inset: 0; background: var(--cp-overlay); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 10000; display: none; justify-content: center; align-items: flex-end; }
@@ -987,7 +989,8 @@ function updateRestoMap() {
   }
   const group = L.featureGroup();
   visibleMarkers.forEach(m => {
-    const marker = L.marker([m.lat, m.lng]).bindPopup(`<strong>${m.name}</strong><br>${m.desc}`);
+    const marker = L.marker([m.lat, m.lng]).bindPopup(`<strong>${m.name}</strong><br>${m.desc}`)
+      .bindTooltip(m.name, { permanent: true, direction: 'right', className: 'marker-label', offset: [12, -20] });
     restoLayerGroup.addLayer(marker);
     group.addLayer(L.marker([m.lat, m.lng]));
   });
@@ -1004,7 +1007,8 @@ function createMap(containerId, markers, zoom) {
   
   const group = L.featureGroup();
   markers.forEach(m => {
-    const marker = L.marker([m.lat, m.lng]).bindPopup(`<strong>${m.name}</strong><br>${m.desc}`);
+    const marker = L.marker([m.lat, m.lng]).bindPopup(`<strong>${m.name}</strong><br>${m.desc}`)
+      .bindTooltip(m.name, { permanent: true, direction: 'right', className: 'marker-label', offset: [12, -20] });
     group.addLayer(marker);
   });
   group.addTo(map);

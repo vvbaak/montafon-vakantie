@@ -549,7 +549,8 @@ const photos = {
     'santis-1.jpg',
     'santis-2.jpg',
     'santis-3.jpg'
-  ]
+  ],
+  mountainbeach: []
 };
 const erlebnisPhotos = {
   golmi: 'https://images.unsplash.com/photo-1551632811-561732d1e306?w=600&h=300&fit=crop',
@@ -569,7 +570,8 @@ const activityMarkers = [
   { lat: 46.9740, lng: 9.9050, name: '🏎️ Mountainkarten', desc: 'Gargellen – € 80/gezin' },
   { lat: 47.4120, lng: 9.7440, name: '🔬 Inatura Science Center', desc: 'Dornbirn – € 32,20' },
   { lat: 47.5460, lng: 9.6850, name: '⛵ Lindau Bodensee', desc: 'Dagtrip – ca. € 46' },
-  { lat: 47.2490, lng: 9.3430, name: '🇨🇭 Säntis', desc: 'Zwitserland – ca. € 170' }
+  { lat: 47.2490, lng: 9.3430, name: '🇨🇭 Säntis', desc: 'Zwitserland – ca. € 170' },
+  { lat: 46.9930, lng: 10.0220, name: '🏖️ Mountain Beach', desc: 'Gaschurn – Gratis met WP' }
 ];
 
 const erlebnisMarkers = [
@@ -637,7 +639,8 @@ const activities = [
   { id:'mountainkart', name:'Mountainkarten Gargellen', emoji:'🏎️', summary:'Stoere driewielers over brede bergwegen!', description:'Grote stoere driewielers over een brede bergweg. Niet in WildPass, vaste prijs per kart.', priceAdult:'€ 20', priceKid:'€ 20', priceFamily:'€ 80', priceFamilyWP:'€ 80', wildpass:false, score:'', drive:'~25 min.', maps:'https://www.google.com/maps/search/Mountainkart+Gargellen' },
   { id:'inatura', name:'Inatura Science Center', emoji:'🔬', summary:'Interactief museum – perfect voor een regendag!', description:'Interactief museum in Dornbirn vol proefjes en opgezette dieren.', priceAdult:'€ 14', priceKid:'€ 6,90', priceFamily:'€ 32,20', priceFamilyWP:'€ 32,20', wildpass:false, score:'', drive:'~50 min.', maps:'https://www.google.com/maps/search/Inatura+Science+Center+Dornbirn' },
   { id:'lindau', name:'Dagtrip Lindau & Bodensee', emoji:'⛵', summary:'Historische straatjes, vuurtoren & boottocht.', description:'Eiland Lindau aan de Bodensee. Vuurtoren, straatjes, optionele boottocht.', priceAdult:'ca. € 16,50', priceKid:'ca. € 10', priceFamily:'ca. € 46', priceFamilyWP:'ca. € 46', wildpass:false, score:'', drive:'~1 uur', maps:'https://www.google.com/maps/search/Lindau+Insel+Bodensee' },
-  { id:'santis', name:'Dagtrip Säntis & Appenzell', emoji:'🇨🇭', summary:'Zweefbaan naar 2502m – uitzicht over 6 landen!', description:'Zweefbaan naar Säntis in Zwitserland. Spectaculair uitzicht! Buiten WildPass.', priceAdult:'ca. € 61,50', priceKid:'ca. € 30,80', priceFamily:'ca. € 170', priceFamilyWP:'ca. € 170', wildpass:false, score:'', drive:'~1u 25 min.', maps:'https://www.google.com/maps/search/Säntis+Schwebebahn' }
+  { id:'santis', name:'Dagtrip Säntis & Appenzell', emoji:'🇨🇭', summary:'Zweefbaan naar 2502m – uitzicht over 6 landen!', description:'Zweefbaan naar Säntis in Zwitserland. Spectaculair uitzicht! Buiten WildPass.', priceAdult:'ca. € 61,50', priceKid:'ca. € 30,80', priceFamily:'ca. € 170', priceFamilyWP:'ca. € 170', wildpass:false, score:'', drive:'~1u 25 min.', maps:'https://www.google.com/maps/search/Säntis+Schwebebahn' },
+  { id:'mountainbeach', name:'Mountain Beach Gaschurn', emoji:'🏖️', summary:'Freizeitpark met zwemmeren, glijbanen & strand – gratis met WP!', description:'Freizeitpark met twee zwemmeren (6.300 m²), zandstrand, raftingstrecke, kletterpyramide, Air Bubble, hangbrug, waterspeeltoestellen en speeltuin. Open dagelijks 09:00–19:00 (mei–aug). Gastronomie (Beacheria) vrij toegankelijk.', priceAdult:'€ 7', priceKid:'€ 5', priceFamily:'ca. € 24', priceFamilyWP:'€ 0 (gratis!)', wildpass:true, score:'', drive:'~15 min.', maps:'https://www.google.com/maps/search/Mountain+Beach+Gaschurn', subs:['🏊 Zwemmeren','🛟 Raftingstrecke','🏖️ Zandstrand','🧗 Kletterpyramide','🛝 Wasserrutschen','🏐 Beachvolleybal'] }
 ];
 
 const erlebnisse = [

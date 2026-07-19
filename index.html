@@ -180,6 +180,13 @@ body {
 .filter-btn.active { background:var(--cp-accent); color:var(--cp-accent-fg); border-color:var(--cp-accent); }
 .indoor-badge { display:inline-block; background:#dbeafe; color:#1d4ed8; font-size:0.65rem; font-weight:700; padding:2px 6px; border-radius:6px; margin-left:6px; vertical-align:middle; }
 html[data-theme="dark"] .indoor-badge { background:#1e3a5f; color:#93c5fd; }
+.event-list { display:flex; flex-direction:column; gap:6px; }
+.event-item { display:flex; align-items:center; gap:12px; padding:8px 10px; border-radius:10px; background:var(--cp-surface-soft); border:1px solid var(--cp-border); }
+.event-item.highlight { background:var(--cp-accent-soft); border-color:var(--cp-accent); }
+.event-date { min-width:48px; font-size:0.72rem; font-weight:800; color:var(--cp-accent); text-align:center; text-transform:uppercase; line-height:1.2; }
+.event-info { flex:1; min-width:0; }
+.event-name { font-size:0.82rem; font-weight:700; color:var(--cp-text); }
+.event-meta { font-size:0.72rem; color:var(--cp-text-muted); margin-top:2px; }
 
 .carousel-wrap { margin: 14px -16px 14px; overflow-x: auto; scroll-snap-type: x mandatory; display: flex; gap: 10px; padding: 0 16px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
 .carousel-wrap::-webkit-scrollbar { display: none; }
@@ -415,14 +422,19 @@ html[data-theme="dark"] .indoor-badge { background:#1e3a5f; color:#93c5fd; }
   <div id="erlebnisList"></div>
   <div class="section-title" style="margin-top:24px;">🎪 Lokale Feesten & Events</div>
   <div class="info-block">
-    <p style="font-size:0.88rem;line-height:1.6;color:var(--cp-text-muted);">
-      Tijdens jullie verblijf zijn er diverse evenementen. Check 
-      <a href="https://www.montafon.at/en/Events" target="_blank" style="color:var(--cp-link);font-weight:700;">montafon.at/events</a>:<br><br>
-      🎵 <strong>Dorpsfeesten & Almfesten</strong><br>
-      🧀 <strong>Boerenmarkten</strong> – lokale kaas & ambachten<br>
-      🎆 <strong>Bergvuur</strong> – vuren op de bergtoppen<br>
-      🐄 <strong>Almabtrieb</strong> – feestelijke afdaling koeien (eind aug)
-    </p>
+    <p style="font-size:0.82rem;color:var(--cp-text-muted);margin-bottom:12px;">Evenementen in Schruns tijdens jullie verblijf:</p>
+    <div class="event-list">
+      <div class="event-item"><div class="event-date">4 aug</div><div class="event-info"><div class="event-name">🛍️ Flohmarktlädili</div><div class="event-meta">14:00–17:00 · Jakob-Stemer Weg 3</div></div></div>
+      <div class="event-item"><div class="event-date">6 aug</div><div class="event-info"><div class="event-name">🧺 Schruser Sommermarkt</div><div class="event-meta">09:00–17:00 · Kirchplatz</div></div></div>
+      <div class="event-item highlight"><div class="event-date">8 aug</div><div class="event-info"><div class="event-name">🎉 Schruser Plätzlifäscht</div><div class="event-meta">Schruns centrum</div></div></div>
+      <div class="event-item"><div class="event-date">11 aug</div><div class="event-info"><div class="event-name">🛍️ Flohmarktlädili</div><div class="event-meta">14:00–17:00 · Jakob-Stemer Weg 3</div></div></div>
+      <div class="event-item"><div class="event-date">13 aug</div><div class="event-info"><div class="event-name">🧺 Schruser Sommermarkt</div><div class="event-meta">09:00–17:00 · Kirchplatz</div></div></div>
+      <div class="event-item highlight"><div class="event-date">13 aug</div><div class="event-info"><div class="event-name">🎵 Montafoner Abend</div><div class="event-meta">Trachtengruppe Schruns · Kirchplatz</div></div></div>
+      <div class="event-item"><div class="event-date">18 aug</div><div class="event-info"><div class="event-name">🛍️ Flohmarktlädili</div><div class="event-meta">14:00–17:00 · Jakob-Stemer Weg 3</div></div></div>
+      <div class="event-item"><div class="event-date">20 aug</div><div class="event-info"><div class="event-name">🧺 Schruser Sommermarkt</div><div class="event-meta">09:00–17:00 · Kirchplatz</div></div></div>
+      <div class="event-item highlight"><div class="event-date">21 aug</div><div class="event-info"><div class="event-name">🍺 Schruser Bierfäscht</div><div class="event-meta">Begegnungszone / Silvrettastraße</div></div></div>
+    </div>
+    <a href="https://www.montafon.at/en/Events" target="_blank" style="display:inline-block;margin-top:12px;color:var(--cp-link);font-weight:700;font-size:0.82rem;">→ Meer events op montafon.at</a>
   </div>
   <div class="map-section">
     <div class="map-label">🗺️ Kaart: wandelingen & Erlebniswege</div>

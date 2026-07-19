@@ -990,7 +990,7 @@ function updateRestoMap() {
   const group = L.featureGroup();
   visibleMarkers.forEach(m => {
     const marker = L.marker([m.lat, m.lng]).bindPopup(`<strong>${m.name}</strong><br>${m.desc}`)
-      .bindTooltip(m.name, { permanent: true, direction: 'right', className: 'marker-label', offset: [12, -20] });
+      .bindTooltip(m.name, { permanent: true, direction: 'right', className: 'marker-label', offset: [5, -14] });
     restoLayerGroup.addLayer(marker);
     group.addLayer(L.marker([m.lat, m.lng]));
   });
@@ -1008,7 +1008,7 @@ function createMap(containerId, markers, zoom) {
   const group = L.featureGroup();
   markers.forEach(m => {
     const marker = L.marker([m.lat, m.lng]).bindPopup(`<strong>${m.name}</strong><br>${m.desc}`)
-      .bindTooltip(m.name, { permanent: true, direction: 'right', className: 'marker-label', offset: [12, -20] });
+      .bindTooltip(m.name, { permanent: true, direction: 'right', className: 'marker-label', offset: [5, -14] });
     group.addLayer(marker);
   });
   group.addTo(map);

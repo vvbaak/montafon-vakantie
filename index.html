@@ -181,16 +181,28 @@ body {
 .carousel-item { min-width: 260px; height: 170px; border-radius: 12px; scroll-snap-align: start; flex-shrink: 0; overflow: hidden; background: var(--cp-surface-soft); }
 .carousel-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-.category-header { font-size: 1rem; font-weight: 800; margin: 20px 0 10px; display: flex; align-items: center; gap: 8px; color: var(--cp-text); }
+.category-header { font-size: 1rem; font-weight: 800; margin: 0; display: flex; align-items: center; gap: 8px; color: var(--cp-text); padding: 12px 16px; background: var(--cp-surface); border: 1px solid var(--cp-border); border-radius: 14px; cursor: pointer; user-select: none; }
 .category-header:first-of-type { margin-top: 8px; }
-.resto-card { background: var(--cp-surface); border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; border: 1px solid var(--cp-border); box-shadow: var(--cp-shadow); }
-.resto-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
-.resto-name { font-size: 0.92rem; font-weight: 700; color: var(--cp-text); }
-.resto-type { font-size: 0.75rem; color: var(--cp-text-muted); margin-top: 2px; }
+.category-header .cat-count { font-size: 0.72rem; font-weight: 600; background: var(--cp-accent-soft); color: var(--cp-accent); padding: 2px 8px; border-radius: 10px; margin-left: auto; }
+.category-header .cat-arrow { transition: transform 0.3s; margin-left: 6px; font-size: 0.8rem; }
+.category-header.open .cat-arrow { transform: rotate(180deg); }
+.category-group { margin-bottom: 12px; }
+.category-items { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+.category-group.open .category-items { max-height: 2000px; }
+.resto-card { background: var(--cp-surface); border-radius: 0; padding: 10px 16px; margin-bottom: 0; border: 1px solid var(--cp-border); border-top: none; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: background 0.2s; }
+.resto-card:last-child { border-radius: 0 0 14px 14px; }
+.resto-card:hover { background: var(--cp-accent-soft); }
+.resto-left { flex: 1; min-width: 0; }
+.resto-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.resto-name { font-size: 0.85rem; font-weight: 700; color: var(--cp-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.resto-type { font-size: 0.72rem; color: var(--cp-text-muted); margin-top: 1px; }
 .resto-score { background: var(--v-yellow); color: #1a1a1a; padding: 2px 8px; border-radius: 8px; font-size: 0.72rem; font-weight: 800; white-space: nowrap; flex-shrink: 0; }
 .resto-meta { display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap; }
 .resto-meta-item { font-size: 0.75rem; color: var(--cp-text-muted); display: flex; align-items: center; gap: 4px; }
 .resto-desc { font-size: 0.8rem; color: var(--cp-text-soft); margin-top: 8px; line-height: 1.5; }
+.resto-expand { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; padding: 0 16px; }
+.resto-card.expanded .resto-expand { max-height: 200px; }
+.resto-card.expanded { background: var(--cp-surface-soft); }
 
 .erlebnis-card { background: var(--cp-surface); border-radius: 16px; margin-bottom: 12px; box-shadow: var(--cp-shadow); border: 1px solid var(--cp-border); overflow: hidden; cursor: pointer; user-select: none; }
 .erlebnis-header { padding: 14px 16px; display: flex; align-items: center; gap: 12px; }
@@ -912,15 +924,25 @@ function renderRestaurants() {
   [{key:'fiets',label:'🚲 Met de fiets'},{key:'ijs',label:'🍦 IJsje halen'},{key:'drink',label:'🍹 Drankje doen'},{key:'auto',label:'🚗 Met de auto'}].forEach(cat => {
     const items = restaurants.filter(r => r.cat === cat.key);
     if (!items.length) return;
-    const h = document.createElement('div'); h.className='category-header'; h.textContent=cat.label; list.appendChild(h);
+    const group = document.createElement('div'); group.className='category-group';
+    const h = document.createElement('div'); h.className='category-header';
+    h.innerHTML = `${cat.label}<span class="cat-count">${items.length}</span><span class="cat-arrow">▼</span>`;
+    h.addEventListener('click', () => { group.classList.toggle('open'); h.classList.toggle('open'); });
+    group.appendChild(h);
+    const itemsWrap = document.createElement('div'); itemsWrap.className='category-items';
     items.forEach(r => {
       const c = document.createElement('div'); c.className='resto-card';
-      c.innerHTML = `<div class="resto-top"><div><div class="resto-name">${r.name}</div><div class="resto-type">${r.type}</div></div><span class="resto-score">⭐ ${r.score}</span></div>
-        <div class="resto-meta"><span class="resto-meta-item">📍 ${r.reach}</span><span class="resto-meta-item">💰 ${r.price}</span></div>
-        <div class="resto-desc">${r.desc}</div>
-        <div style="margin-top:10px"><a href="${r.maps}" target="_blank" class="btn-maps" style="width:auto;padding:8px 14px;font-size:0.78rem">📍 Maps</a></div>`;
-      list.appendChild(c);
+      c.innerHTML = `<div class="resto-left"><div class="resto-top"><div class="resto-name">${r.name}</div><span class="resto-score">⭐ ${r.score}</span></div><div class="resto-type">${r.type} · ${r.reach}</div></div>
+        <div class="resto-expand"><div style="padding:8px 0 10px">
+          <div class="resto-desc">${r.desc}</div>
+          <div class="resto-meta"><span class="resto-meta-item">💰 ${r.price}</span></div>
+          <div style="margin-top:8px"><a href="${r.maps}" target="_blank" class="btn-maps" style="width:auto;padding:6px 12px;font-size:0.75rem">📍 Maps</a></div>
+        </div></div>`;
+      c.addEventListener('click', (e) => { if(e.target.closest('a')) return; c.classList.toggle('expanded'); });
+      itemsWrap.appendChild(c);
     });
+    group.appendChild(itemsWrap);
+    list.appendChild(group);
   });
 }
 

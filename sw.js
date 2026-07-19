@@ -1,6 +1,7 @@
-const CACHE_NAME = 'montafon-v1';
+const CACHE_NAME = 'montafon-v2';
 const ASSETS = [
-  './montafon-vakantie.html',
+  './',
+  './index.html',
   'https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
@@ -51,7 +52,7 @@ self.addEventListener('fetch', event => {
           if (cached) return cached;
           // For navigation requests, serve the main page
           if (event.request.mode === 'navigate') {
-            return caches.match('./montafon-vakantie.html');
+            return caches.match('./index.html');
           }
           return new Response('Offline', { status: 503 });
         });
